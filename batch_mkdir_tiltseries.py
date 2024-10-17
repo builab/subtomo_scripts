@@ -11,7 +11,7 @@ Move .mrc file into folders
 import argparse, os, glob, shutil
 
 if __name__=='__main__':
-	parser = argparse.ArgumentParser(description='Organize tilt series into folders')
+	parser = argparse.ArgumentParser(description='Organize tilt series into folders\n. E.g.: batch_mkdir_tiltseries.py --i \"CU482_0*.mrc\"')
 	parser.add_argument('--i', help='Input Tilt Series Wild Card',required=True)
 	
 	args = parser.parse_args()
