@@ -5,8 +5,8 @@ Created April 2022
 
 Wrapper script to run alignframes (4.11 tested) on a batch of tilt series.
 It is possible to use wild card to select a subset of tilt series
-Usage: batch_alignframes -i TS_01/TS_01.mrc" -frameDir tilt_frames -gainref tilt_frames/CountRef_0.0.mrc -rotation 6
-Usage: batch_alignframes -i "TS*/TS*.mrc" -frameDir tilt_frames -gainref tilt_frames/CountRef_0.0.mrc -rotation 6
+Usage: batch_alignframes.py -i TS_01/TS_01.mrc" -frameDir tilt_frames -gainref tilt_frames/CountRef_0.0.mrc -rotation 6
+Usage: batch_alignframes.py --i "TS*/TS*.mrc" --frameDir tilt_frames --gainref tilt_frames/CountRef_0.0.mrc --rotation 6
 
 Edit other parameter inside the files
 @author: Huy Bui, McGill
