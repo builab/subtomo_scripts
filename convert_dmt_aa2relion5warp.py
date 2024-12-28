@@ -21,9 +21,9 @@ def preprocess_spider_doc(spiderdoc):
 	#cmd = 'sed -i \'\' \'/^ ;/d\' ' + spiderdoc
 	#os.system(cmd)
 	"""Remove lines starting with ' ;' from spiderdoc."""
-    delimiter = "\'\'" if os.name == 'posix' else ""
-    cmd = f"sed -i {delimiter} '/^ ;/d' {spiderdoc}"
-    os.system(cmd)
+	delimiter = "\'\'" if os.name == 'posix' else ""
+	cmd = f"sed -i {delimiter} '/^ ;/d' {spiderdoc}"
+	os.system(cmd)
 	
 def preprocess_bstar(starFile):
 	cmd = 'grep \'^\\s*[0-9]\' ' + starFile + ' > ' + starFile.replace('.star', '.txt')
