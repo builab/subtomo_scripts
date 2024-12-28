@@ -54,20 +54,20 @@ def aa_to_relion5warp(starFile, docFile, tomoName, tomoNo, binFactor, pixelSize,
 	nrows, ncols = origin.shape
 
 	# Hard Code Here
-	header_list = ["TomoName", "TomoParticleId", "CoordinateX", "CoordinateY", "CoordinateZ", "AngleRot", "AngleTilt", "AnglePsi", "TomoParticleName", "OpticsGroup", "ImageName", "OriginXAngst", "OriginYAngst", "OriginZAngst", "TomoVisibleFrames", "ClassNumber", "HelicalTubeID", "RandomSubset"]
+	header_list = ["rlnTomoName", "rlnTomoParticleId", "rlnCoordinateX", "rlnCoordinateY", "rlnCoordinateZ", "rlnAngleRot", "rlnAngleTilt", "rlnAnglePsi", "rlnTomoParticleName", "rlnOpticsGroup", "rlnImageName", "rlnOriginXAngst", "rlnOriginYAngst", "rlnOriginZAngst", "rlnTomoVisibleFrames", "rlnClassNumber", "rlnHelicalTubeID", "rlnRandomSubset"]
 	df_relion = pd.DataFrame(columns = header_list)
-	df_relion['TomoParticleId'] = np.arange(len(df2), dtype=np.int16) + 1
-	df_relion['HelicalTubeID'] = np.ones(len(df2['CoordinateX']), dtype=np.int16)*doubletId	
-	df_relion['CoordinateX'] = df2['CoordinateX'];
-	df_relion['CoordinateY'] = df2['CoordinateY'];
-	df_relion['CoordinateZ'] = df2['CoordinateZ'];
+	df_relion['rlnTomoParticleId'] = np.arange(len(df2), dtype=np.int16) + 1
+	df_relion['rlnHelicalTubeID'] = np.ones(len(df2['CoordinateX']), dtype=np.int16)*doubletId	
+	df_relion['rlnCoordinateX'] = df2['CoordinateX'];
+	df_relion['rlnCoordinateY'] = df2['CoordinateY'];
+	df_relion['rlnCoordinateZ'] = df2['CoordinateZ'];
 	
 	# To adjust originXYZ
-	df_relion['OriginXAngst'] = np.zeros(len(df_relion['CoordinateX']))
-	df_relion['OriginYAngst'] = np.zeros(len(df_relion['CoordinateX']))
-	df_relion['OriginZAngst'] = np.zeros(len(df_relion['CoordinateX']))
+	df_relion['rlnOriginXAngst'] = np.zeros(len(df_relion['rlnCoordinateX']))
+	df_relion['rlnOriginYAngst'] = np.zeros(len(df_relion['rlnCoordinateX']))
+	df_relion['rlnOriginZAngst'] = np.zeros(len(df_relion['rlnCoordinateX']))
 	
-	df_relion['OpticsGroup'] = np.zeros(len(df_relion['CoordinateX'])) + tomoNo
+	df_relion['rlnOpticsGroup'] = np.zeros(len(df_relion['rlnCoordinateX'])) + tomoNo
 	
 	# Reset angle for debug
 	eulers_relion = convert_eulers(eulers_dynamo, source_meta='dynamo', target_meta='warp')
@@ -75,28 +75,28 @@ def aa_to_relion5warp(starFile, docFile, tomoName, tomoNo, binFactor, pixelSize,
 	if eulers_relion.ndim == 1:
 		eulers_relion = eulers_relion.reshape(1, -1)
 		
-	df_relion['AngleRot'] = eulers_relion[:,0]
-	df_relion['AngleTilt'] = eulers_relion[:,1]
-	df_relion['AnglePsi'] = eulers_relion[:,2]
+	df_relion['rlnAngleRot'] = eulers_relion[:,0]
+	df_relion['rlnAngleTilt'] = eulers_relion[:,1]
+	df_relion['rlnAnglePsi'] = eulers_relion[:,2]
 
 
-	df_relion['ClassNumber'] = np.ones(len(df_relion['CoordinateX']), dtype=np.int8)
+	df_relion['ClassNumber'] = np.ones(len(df_relion['rlnCoordinateX']), dtype=np.int8)
 
 	# Look up how many tilt is used
 	df_tomostar = starfile.read(tomostarDir + '/' + tomoName + '.tomostar' )
 	visible_frames = f"[{','.join(['1'] * len(df_tomostar))}]"
 
 	for i in range(len(df2['CoordinateX'])):
-		df_relion.loc[i, ('TomoName')] = tomoName + '.tomostar'
-		df_relion.loc[i, ('TomoParticleName')] = tomoName + '/' + str(df_relion.loc[i, ('TomoParticleId')])
-		df_relion.loc[i, ('ImageName')] = '../warp_tiltseries/particleseries/' + tomoName + '/' + tomoName + f"_{pixelSize*binFactor:02}" + "A_" +  f"{df_relion.loc[i, ('TomoParticleId')]:06}" + ".mrcs"
-		df_relion.loc[i, ('TomoVisibleFrames')] = visible_frames  # Replace with your desired number
+		df_relion.loc[i, ('rlnTomoName')] = tomoName + '.tomostar'
+		df_relion.loc[i, ('rlnTomoParticleName')] = tomoName + '/' + str(df_relion.loc[i, ('rlnTomoParticleId')])
+		df_relion.loc[i, ('rlnImageName')] = '../warp_tiltseries/particleseries/' + tomoName + '/' + tomoName + f"_{pixelSize*binFactor:02}" + "A_" +  f"{df_relion.loc[i, ('rlnTomoParticleId')]:06}" + ".mrcs"
+		df_relion.loc[i, ('rlnTomoVisibleFrames')] = visible_frames  # Replace with your desired number
 
-	a = np.empty((len(df_relion['CoordinateX']),), dtype=np.int8)
+	a = np.empty((len(df_relion['rlnCoordinateX']),), dtype=np.int8)
 	a[::2] = 1
 	a[1::2] = 2
 
-	df_relion['RandomSubset'] = a
+	df_relion['rlnRandomSubset'] = a
 	return df_relion
 
 
@@ -127,7 +127,7 @@ if __name__=='__main__':
 	# Template for tomo_description
 	orderList = 'input/order_list.csv'
 	
-	tomo_header_list = ["OpticsGroup", "OpticsGroupName", "SphericalAberration", "Voltage", "TomoTiltSeriesPixelSize", "CtfDataAreCtfPremultiplied", "ImageDimensionality", "TomoSubtomogramBinning", "ImagePixelSize", "ImageSize", "AmplitudeContrast"]
+	tomo_header_list = ["rlnOpticsGroup", "rlnOpticsGroupName", "rlnSphericalAberration", "rlnVoltage", "rlnTomoTiltSeriesPixelSize", "rlnCtfDataAreCtfPremultiplied", "rlnImageDimensionality", "rlnTomoSubtomogramBinning", "rlnImagePixelSize", "rlnImageSize", "rlnAmplitudeContrast"]
 	df_tomo = pd.DataFrame(columns = tomo_header_list)
 		
 	for line in listDoublet:   
@@ -147,17 +147,17 @@ if __name__=='__main__':
 			print(tomoName)
 			tomoNo += 1
 			tomoList[tomoName] = tomoNo
-			df_tomo.loc[tomoNo-1, 'OpticsGroup'] = tomoNo
-			df_tomo.loc[tomoNo-1, 'OpticsGroupName'] = 'opticsGroup' + str(tomoNo)
-			df_tomo.loc[tomoNo-1, 'SphericalAberration'] = 2.7
-			df_tomo.loc[tomoNo-1, 'Voltage'] = 300
-			df_tomo.loc[tomoNo-1, 'TomoTiltSeriesPixelSize'] = pixelSize
-			df_tomo.loc[tomoNo-1, 'CtfDataAreCtfPremultiplied'] = 1
-			df_tomo.loc[tomoNo-1, 'ImageDimensionality'] = 2
-			df_tomo.loc[tomoNo-1, 'TomoSubtomogramBinning'] = binFactor
-			df_tomo.loc[tomoNo-1, 'ImagePixelSize'] = pixelSize*binFactor
-			df_tomo.loc[tomoNo-1, 'ImageSize'] = imageSize;
-			df_tomo.loc[tomoNo-1, 'AmplitudeContrast'] = 0.07
+			df_tomo.loc[tomoNo-1, 'rlnOpticsGroup'] = tomoNo
+			df_tomo.loc[tomoNo-1, 'rlnOpticsGroupName'] = 'opticsGroup' + str(tomoNo)
+			df_tomo.loc[tomoNo-1, 'rlnSphericalAberration'] = 2.7
+			df_tomo.loc[tomoNo-1, 'rlnVoltage'] = 300
+			df_tomo.loc[tomoNo-1, 'rlnTomoTiltSeriesPixelSize'] = pixelSize
+			df_tomo.loc[tomoNo-1, 'rlnCtfDataAreCtfPremultiplied'] = 1
+			df_tomo.loc[tomoNo-1, 'rlnImageDimensionality'] = 2
+			df_tomo.loc[tomoNo-1, 'rlnTomoSubtomogramBinning'] = binFactor
+			df_tomo.loc[tomoNo-1, 'rlnImagePixelSize'] = pixelSize*binFactor
+			df_tomo.loc[tomoNo-1, 'rlnImageSize'] = imageSize;
+			df_tomo.loc[tomoNo-1, 'rlnAmplitudeContrast'] = 0.07
 
 			
 		print('   -->' + str(doubletId))
@@ -176,10 +176,10 @@ if __name__=='__main__':
 			#df_all = df_all.append(df_relion)
 			df_all = pd.concat([df_all, df_relion], ignore_index=True)
 		
-		df_all['TomoParticleId'] = df_all.groupby('TomoName').cumcount() + 1
-		df_all['TomoParticleName'] = df_all['TomoName'].str.replace('.tomostar', '', regex=False) + '/' + df_all['TomoParticleId'].astype(str)
+		df_all['rlnTomoParticleId'] = df_all.groupby('rlnTomoName').cumcount() + 1
+		df_all['rlnTomoParticleName'] = df_all['rlnTomoName'].str.replace('.tomostar', '', regex=False) + '/' + df_all['rlnTomoParticleId'].astype(str)
 	general_df = {};
-	general_df['TomoSubTomosAre2DStacks'] = 1
+	general_df['rlnTomoSubTomosAre2DStacks'] = 1
 	particles_df = {}
 	
 	particles_df = df_all
