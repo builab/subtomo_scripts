@@ -21,7 +21,7 @@ def preprocess_spider_doc(spiderdoc):
 	#cmd = 'sed -i \'\' \'/^ ;/d\' ' + spiderdoc
 	#os.system(cmd)
 	"""Remove lines starting with ' ;' from spiderdoc."""
-	delimiter = "\'\'" if os.name == 'posix' else ""
+	delimiter = "" if os.name == 'posix' else "''"
 	cmd = f"sed -i {delimiter} '/^ ;/d' {spiderdoc}"
 	os.system(cmd)
 	
@@ -80,7 +80,7 @@ def aa_to_relion5warp(starFile, docFile, tomoName, tomoNo, binFactor, pixelSize,
 	df_relion['rlnAnglePsi'] = eulers_relion[:,2]
 
 
-	df_relion['ClassNumber'] = np.ones(len(df_relion['rlnCoordinateX']), dtype=np.int8)
+	df_relion['rlnClassNumber'] = np.ones(len(df_relion['rlnCoordinateX']), dtype=np.int8)
 
 	# Look up how many tilt is used
 	df_tomostar = starfile.read(tomostarDir + '/' + tomoName + '.tomostar' )
@@ -178,6 +178,8 @@ if __name__=='__main__':
 		
 		df_all['rlnTomoParticleId'] = df_all.groupby('rlnTomoName').cumcount() + 1
 		df_all['rlnTomoParticleName'] = df_all['rlnTomoName'].str.replace('.tomostar', '', regex=False) + '/' + df_all['rlnTomoParticleId'].astype(str)
+		df_all['rlnOpticsGroup'] = df_all['rlnOpticsGroup'].astype(int).astype(str)
+
 	general_df = {};
 	general_df['rlnTomoSubTomosAre2DStacks'] = 1
 	particles_df = {}
