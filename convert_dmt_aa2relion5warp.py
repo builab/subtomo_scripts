@@ -103,8 +103,8 @@ if __name__=='__main__':
 	parser = argparse.ArgumentParser(description='Convert doc & star file to Relion 4.0 input file')
 	parser.add_argument('--i', help='Input list file',required=True)
 	parser.add_argument('--ostar', help='Output star file',required=True)
-	parser.add_argument('--angpix', help='Input pixel size',required=True)
-	parser.add_argument('--imagesize', help='Input pixel size',required=True)
+	parser.add_argument('--angpix', help='Tomo pixel size',required=True)
+	parser.add_argument('--imagesize', help='Subtomo image size',required=True)
 	parser.add_argument('--bin', help='Bin of current tomo',required=True)
 	parser.add_argument('--path_tomostar', help='Path to tomostar',required=True)
 
