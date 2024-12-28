@@ -23,7 +23,7 @@ from eulerangles import euler2euler, convert_eulers
 
 def preprocess_spider_doc(spiderdoc):
     """Remove lines starting with ' ;' from spiderdoc."""
-    delimiter = "\\'" if os.name == 'posix' else ""
+    delimiter = "\'\'" if os.name == 'posix' else ""
     cmd = f"sed -i {delimiter} '/^ ;/d' {spiderdoc}"
     os.system(cmd)
 

@@ -18,8 +18,12 @@ from eulerangles import euler2euler
 from eulerangles import convert_eulers
 
 def preprocess_spider_doc(spiderdoc):
-	cmd = 'sed -i \'\' \'/^ ;/d\' ' + spiderdoc
-	os.system(cmd)
+	#cmd = 'sed -i \'\' \'/^ ;/d\' ' + spiderdoc
+	#os.system(cmd)
+	"""Remove lines starting with ' ;' from spiderdoc."""
+    delimiter = "\'\'" if os.name == 'posix' else ""
+    cmd = f"sed -i {delimiter} '/^ ;/d' {spiderdoc}"
+    os.system(cmd)
 	
 def preprocess_bstar(starFile):
 	cmd = 'grep \'^\\s*[0-9]\' ' + starFile + ' > ' + starFile.replace('.star', '.txt')
@@ -52,7 +56,10 @@ def aa_to_relion5warp(starFile, docFile, tomoName, tomoNo, binFactor, pixelSize,
 	# Hard Code Here
 	header_list = ["TomoName", "TomoParticleId", "CoordinateX", "CoordinateY", "CoordinateZ", "AngleRot", "AngleTilt", "AnglePsi", "TomoParticleName", "OpticsGroup", "ImageName", "OriginXAngst", "OriginYAngst", "OriginZAngst", "TomoVisibleFrames", "ClassNumber", "HelicalTubeID", "RandomSubset"]
 	df_relion = pd.DataFrame(columns = header_list)
+	# Old
+	#df_relion['TomoParticleId'] = np.arange(len(df2), dtype=np.int16) + 1
 	df_relion['TomoParticleId'] = np.arange(len(df2), dtype=np.int16) + 1
+	print(len(df2))
 	df_relion['HelicalTubeID'] = np.ones(len(df2['CoordinateX']), dtype=np.int16)*doubletId	
 	df_relion['CoordinateX'] = df2['CoordinateX'];
 	df_relion['CoordinateY'] = df2['CoordinateY'];
