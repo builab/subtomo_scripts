@@ -79,7 +79,7 @@ def aa_to_relion5warp(starFile, docFile, tomoName, tomoNo, binFactor, pixelSize,
 	df_relion['ClassNumber'] = np.ones(len(df_relion['CoordinateX']), dtype=np.int8)
 
 	# Look up how many tilt is used
-	df_tomostar = starfile.read('tomostar/' + tomoName + '.tomostar' )
+	df_tomostar = starfile.read(tomostarDir + '/' + tomoName + '.tomostar' )
 	visible_frames = f"[{','.join(['1'] * len(df_tomostar))}]"
 
 	for i in range(len(df2['CoordinateX'])):
@@ -106,12 +106,15 @@ if __name__=='__main__':
 	parser.add_argument('--angpix', help='Input pixel size',required=True)
 	parser.add_argument('--imagesize', help='Input pixel size',required=True)
 	parser.add_argument('--bin', help='Bin of current tomo',required=True)
+	parser.add_argument('--path_tomostar', help='Path to tomostar',required=True)
+
 
 	args = parser.parse_args()
 	listDoublet = open(args.i, 'r')
 	pixelSize = float(args.angpix)
 	imageSize = float(args.imagesize)
 	binFactor = float(args.bin)
+	tomostarDir = args.path_tomostar
 		
 	tomoList = {}
 	tomoNo = 0;
