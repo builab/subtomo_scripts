@@ -7,8 +7,10 @@ Requirements:
 - Compatibility with macOS and Linux for sed command.
 - Compatibility with Python 3.9.
 - Handle eulers_relion with one row.
-- Read TomoVisibleFrames from tomostar file.
-Author: HB (08/2022)
+- Read TomoVisibleFrames from tomostar file in a folder tomostar/
+- Usage: convert_aa2relion5warp.py --i list_CU428base_ida_v1.txt --o coord.star --angpix 2.12 --bin 4  --imagesize 80
+- CHATGPT - NOT WORKING
+Author: HB (12/2024)
 """
 
 import numpy as np
