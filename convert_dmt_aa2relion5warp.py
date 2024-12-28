@@ -56,10 +56,7 @@ def aa_to_relion5warp(starFile, docFile, tomoName, tomoNo, binFactor, pixelSize,
 	# Hard Code Here
 	header_list = ["TomoName", "TomoParticleId", "CoordinateX", "CoordinateY", "CoordinateZ", "AngleRot", "AngleTilt", "AnglePsi", "TomoParticleName", "OpticsGroup", "ImageName", "OriginXAngst", "OriginYAngst", "OriginZAngst", "TomoVisibleFrames", "ClassNumber", "HelicalTubeID", "RandomSubset"]
 	df_relion = pd.DataFrame(columns = header_list)
-	# Old
-	#df_relion['TomoParticleId'] = np.arange(len(df2), dtype=np.int16) + 1
 	df_relion['TomoParticleId'] = np.arange(len(df2), dtype=np.int16) + 1
-	print(len(df2))
 	df_relion['HelicalTubeID'] = np.ones(len(df2['CoordinateX']), dtype=np.int16)*doubletId	
 	df_relion['CoordinateX'] = df2['CoordinateX'];
 	df_relion['CoordinateY'] = df2['CoordinateY'];
@@ -178,8 +175,9 @@ if __name__=='__main__':
 		else:
 			#df_all = df_all.append(df_relion)
 			df_all = pd.concat([df_all, df_relion], ignore_index=True)
-
-
+		
+		df_all['TomoParticleId'] = df_all.groupby('TomoName').cumcount() + 1
+		df_all['TomoParticleName'] = df_all['TomoName'].str.replace('.tomostar', '', regex=False) + '/' + df_all['TomoParticleId'].astype(str)
 	general_df = {};
 	general_df['TomoSubTomosAre2DStacks'] = 1
 	particles_df = {}
@@ -187,6 +185,6 @@ if __name__=='__main__':
 	particles_df = df_all
 	
 	# Renumber
-	df_all['TomoParticleId'] = np.arange(len(df_all), dtype=np.int16) + 1
+	#df_all['TomoParticleId'] = np.arange(len(df_all), dtype=np.int16) + 1
 	print("Writing " + args.ostar)
 	starfile.write({'general': general_df, 'optics': df_tomo, 'particles': particles_df}, args.ostar)
