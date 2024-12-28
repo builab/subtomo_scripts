@@ -2,26 +2,20 @@
 # Convert the entire cilia from AA to relion4
 # Must run adjustOrigin from AA before
 # Add HelicalTubeID now
+# Making compatible with both Macs & Linux for sed command
+# Making compatible with new python 3.9
+# Make compatible with eulers_relion with one row only
+# Read TomoVisibleFrames from tomostar file
 # HB 08/2022
 
 
 import numpy as np
 import pandas as pd
 import argparse, os, re
+import starfile
 
 from eulerangles import euler2euler
 from eulerangles import convert_eulers
-
-def write_star_4(dfin, outfile, tableType):
-	out = open(outfile, 'w')
-	out.write("# version 30001 from aa\n\n")
-	out.write("data_" + tableType +"\n\n")
-	out.write("loop_\n")
-	for i in range(len(dfin.columns)):
-		out.write('_rln{:s} #{:d}\n'.format(dfin.columns[i], i+1))
-	out.write(dfin.to_string(index=False, header=False))
-	out.write("\n")
-	out.close()
 
 def preprocess_spider_doc(spiderdoc):
 	cmd = 'sed -i \'\' \'/^ ;/d\' ' + spiderdoc
@@ -31,10 +25,10 @@ def preprocess_bstar(starFile):
 	cmd = 'grep \'^\\s*[0-9]\' ' + starFile + ' > ' + starFile.replace('.star', '.txt')
 	os.system(cmd)
 
-
 """Convert aa doc & star to dynamo table"""
-def aa_to_relion(starFile, docFile, tomoName, tomoNo, binFactor, pixelSize, doubletId):
+def aa_to_relion5warp(starFile, docFile, tomoName, tomoNo, binFactor, pixelSize, doubletId):
 	# Read the doc file
+	# Question, do we need TomoVisibleFrames
 	header_list=["no", "norec", "phi", "theta", "psi", "OriginX", "OriginY", "OriginZ", "cc"]
 	df = pd.read_csv(docFile, sep='\s+', names=header_list)
 	fulldata = df.to_numpy()
@@ -56,23 +50,27 @@ def aa_to_relion(starFile, docFile, tomoName, tomoNo, binFactor, pixelSize, doub
 	nrows, ncols = origin.shape
 
 	# Hard Code Here
-	header_list = ["TomoName", "TomoParticleId", "HelicalTubeID", "CoordinateX", "CoordinateY", "CoordinateZ", "OriginXAngst", "OriginYAngst", "OriginZAngst", "AngleRot", "AngleTilt", "AnglePsi", "ClassNumber", "RandomSubset"]
+	header_list = ["TomoName", "TomoParticleId", "CoordinateX", "CoordinateY", "CoordinateZ", "AngleRot", "AngleTilt", "AnglePsi", "TomoParticleName", "OpticsGroup", "ImageName", "OriginXAngst", "OriginYAngst", "OriginZAngst", "TomoVisibleFrames", "ClassNumber", "HelicalTubeID", "RandomSubset"]
 	df_relion = pd.DataFrame(columns = header_list)
 	df_relion['TomoParticleId'] = np.arange(len(df2), dtype=np.int16) + 1
 	df_relion['HelicalTubeID'] = np.ones(len(df2['CoordinateX']), dtype=np.int16)*doubletId	
-	df_relion['CoordinateX'] = df2['CoordinateX']*binFactor;
-	df_relion['CoordinateY'] = df2['CoordinateY']*binFactor;
-	df_relion['CoordinateZ'] = df2['CoordinateZ']*binFactor;
+	df_relion['CoordinateX'] = df2['CoordinateX'];
+	df_relion['CoordinateY'] = df2['CoordinateY'];
+	df_relion['CoordinateZ'] = df2['CoordinateZ'];
+	
 	# To adjust originXYZ
 	df_relion['OriginXAngst'] = np.zeros(len(df_relion['CoordinateX']))
 	df_relion['OriginYAngst'] = np.zeros(len(df_relion['CoordinateX']))
 	df_relion['OriginZAngst'] = np.zeros(len(df_relion['CoordinateX']))
-
+	
+	df_relion['OpticsGroup'] = np.zeros(len(df_relion['CoordinateX'])) + tomoNo
+	
 	# Reset angle for debug
 	eulers_relion = convert_eulers(eulers_dynamo, source_meta='dynamo', target_meta='warp')
+	# Ensure eulers_relion is always 2-dimensional
 	if eulers_relion.ndim == 1:
-    	eulers_relion = eulers_relion.reshape(1, -1)
-    	
+		eulers_relion = eulers_relion.reshape(1, -1)
+		
 	df_relion['AngleRot'] = eulers_relion[:,0]
 	df_relion['AngleTilt'] = eulers_relion[:,1]
 	df_relion['AnglePsi'] = eulers_relion[:,2]
@@ -80,8 +78,15 @@ def aa_to_relion(starFile, docFile, tomoName, tomoNo, binFactor, pixelSize, doub
 
 	df_relion['ClassNumber'] = np.ones(len(df_relion['CoordinateX']), dtype=np.int8)
 
+	# Look up how many tilt is used
+	df_tomostar = starfile.read('tomostar/' + tomoName + '.tomostar' )
+	visible_frames = f"[{','.join(['1'] * len(df_tomostar))}]"
+
 	for i in range(len(df2['CoordinateX'])):
-		df_relion.loc[i, ('TomoName')] = tomoName
+		df_relion.loc[i, ('TomoName')] = tomoName + '.tomostar'
+		df_relion.loc[i, ('TomoParticleName')] = tomoName + '/' + str(df_relion.loc[i, ('TomoParticleId')])
+		df_relion.loc[i, ('ImageName')] = '../warp_tiltseries/particleseries/' + tomoName + '/' + tomoName + f"_{pixelSize*binFactor:02}" + "A_" +  f"{df_relion.loc[i, ('TomoParticleId')]:06}" + ".mrcs"
+		df_relion.loc[i, ('TomoVisibleFrames')] = visible_frames  # Replace with your desired number
 
 	a = np.empty((len(df_relion['CoordinateX']),), dtype=np.int8)
 	a[::2] = 1
@@ -93,19 +98,19 @@ def aa_to_relion(starFile, docFile, tomoName, tomoNo, binFactor, pixelSize, doub
 
 if __name__=='__main__':
 	# get name of input starfile, output starfile, output stack file
-	print('Script to convert from AxonemeAlign to Relion. HB 2021')
-	
+	print('Script to convert from AxonemeAlign to Relion5 Warp. HB 2024')
+	print('All the tomostars must be copy in tomostar/')
 	parser = argparse.ArgumentParser(description='Convert doc & star file to Relion 4.0 input file')
 	parser.add_argument('--i', help='Input list file',required=True)
 	parser.add_argument('--ostar', help='Output star file',required=True)
 	parser.add_argument('--angpix', help='Input pixel size',required=True)
+	parser.add_argument('--imagesize', help='Input pixel size',required=True)
 	parser.add_argument('--bin', help='Bin of current tomo',required=True)
-	parser.add_argument('--frac_dose', help='Tomo fractional dose',required=True, default=2)
-
 
 	args = parser.parse_args()
 	listDoublet = open(args.i, 'r')
 	pixelSize = float(args.angpix)
+	imageSize = float(args.imagesize)
 	binFactor = float(args.bin)
 		
 	tomoList = {}
@@ -115,7 +120,7 @@ if __name__=='__main__':
 	# Template for tomo_description
 	orderList = 'input/order_list.csv'
 	
-	tomo_header_list = ["TomoName", "TomoTiltSeriesName", "TomoImportCtfFindFile", "TomoImportImodDir", "TomoImportFractionalDose", "TomoImportOrderList", "TomoImportCulledFile"]
+	tomo_header_list = ["OpticsGroup", "OpticsGroupName", "SphericalAberration", "Voltage", "TomoTiltSeriesPixelSize", "CtfDataAreCtfPremultiplied", "ImageDimensionality", "TomoSubtomogramBinning", "ImagePixelSize", "ImageSize", "AmplitudeContrast"]
 	df_tomo = pd.DataFrame(columns = tomo_header_list)
 		
 	for line in listDoublet:   
@@ -135,14 +140,18 @@ if __name__=='__main__':
 			print(tomoName)
 			tomoNo += 1
 			tomoList[tomoName] = tomoNo
-			df_tomo.loc[tomoNo-1, 'TomoName'] = tomoName
-			df_tomo.loc[tomoNo-1, 'TomoTiltSeriesName'] = 'tomograms/' + tomoName + '/' + tomoName + '.mrc'
-			df_tomo.loc[tomoNo-1, 'TomoImportCtfFindFile'] = 'tomograms/' + tomoName + '/' + tomoName + '_output.txt'
-			df_tomo.loc[tomoNo-1, 'TomoImportImodDir'] = 'tomograms/' + tomoName
-			df_tomo.loc[tomoNo-1, 'TomoImportFractionalDose'] = args.frac_dose
-			df_tomo.loc[tomoNo-1, 'TomoImportOrderList'] = orderList
-			df_tomo.loc[tomoNo-1, 'TomoImportCulledFile'] = 'tomograms/' + tomoName + '/' + tomoName + '_culled.mrc'
-			
+			df_tomo.loc[tomoNo-1, 'OpticsGroup'] = tomoNo
+			df_tomo.loc[tomoNo-1, 'OpticsGroupName'] = 'opticsGroup' + str(tomoNo)
+			df_tomo.loc[tomoNo-1, 'SphericalAberration'] = 2.7
+			df_tomo.loc[tomoNo-1, 'Voltage'] = 300
+			df_tomo.loc[tomoNo-1, 'TomoTiltSeriesPixelSize'] = pixelSize
+			df_tomo.loc[tomoNo-1, 'CtfDataAreCtfPremultiplied'] = 1
+			df_tomo.loc[tomoNo-1, 'ImageDimensionality'] = 2
+			df_tomo.loc[tomoNo-1, 'TomoSubtomogramBinning'] = binFactor
+			df_tomo.loc[tomoNo-1, 'ImagePixelSize'] = pixelSize*binFactor
+			df_tomo.loc[tomoNo-1, 'ImageSize'] = imageSize;
+			df_tomo.loc[tomoNo-1, 'AmplitudeContrast'] = 0.07
+
 			
 		print('   -->' + str(doubletId))
 		# This part need to be fixed
@@ -152,17 +161,22 @@ if __name__=='__main__':
 		preprocess_bstar(starFile)
 		preprocess_spider_doc(docFile)
 		# Convert
-		df_relion = aa_to_relion(starFile.replace('.star', '.txt'), docFile, tomoName, tomoNo, binFactor, pixelSize, doubletId)
+		df_relion = aa_to_relion5warp(starFile.replace('.star', '.txt'), docFile, tomoName, tomoNo, binFactor, pixelSize, doubletId)
 
 		if df_all is None:
 			df_all = df_relion.copy()
 		else:
+			#df_all = df_all.append(df_relion)
 			df_all = pd.concat([df_all, df_relion], ignore_index=True)
 
+
+	general_df = {};
+	general_df['TomoSubTomosAre2DStacks'] = 1
+	particles_df = {}
+	
+	particles_df = df_all
+	
 	# Renumber
 	df_all['TomoParticleId'] = np.arange(len(df_all), dtype=np.int16) + 1
 	print("Writing " + args.ostar)
-	write_star_4(df_all, args.ostar, 'particles') 
-	print("Writing tomograms_" + args.ostar)
-	write_star_4(df_tomo, 'tomograms_' + args.ostar, '')
-
+	starfile.write({'general': general_df, 'optics': df_tomo, 'particles': particles_df}, args.ostar)
