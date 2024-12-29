@@ -1,0 +1,27 @@
+#!/bin/bash
+#SBATCH --ntasks=1 
+#SBATCH --partition=titan
+#SBATCH --error=warp_ts_import.err
+#SBATCH --output=warp_ts_import.out
+#SBATCH --job-name=warp
+#SBATCH --mem-per-cpu=18GB
+#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=1
+#SBATCH --nodes=1
+
+
+
+WarpTools ts_export_particles \
+--settings warp_tiltseries.settings \
+--input_star doublet_2/coord_96nm.star \
+--output_star relion/coord_96nm.star \
+--coords_angpix 8.48 \
+--output_angpix 8.48 \
+--box 168 \
+--diameter 1000 \
+--relative_output_paths \
+--2d
+
+
+
+

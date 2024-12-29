@@ -1,0 +1,22 @@
+#!/bin/bash
+#SBATCH --ntasks=1 
+#SBATCH --partition=cpu
+#SBATCH --error=warp_ts_setting.err
+#SBATCH --output=warp_ts_setting.out
+#SBATCH --job-name=warp
+#SBATCH --mem-per-cpu=18GB
+#SBATCH --cpus-per-task=4
+#SBATCH --nodes=1
+
+
+WarpTools create_settings \
+--output warp_tiltseries.settings \
+--folder_processing warp_tiltseries \
+--folder_data tomostar \
+--extension "*.tomostar" \
+--angpix 2.12 \
+--gain_path Frames/CountRef_SPEF1MT2_00000_0.0.mrc \
+--gain_flip_y \
+--exposure 4 \
+--tomo_dimensions 4092x5760x1000
+

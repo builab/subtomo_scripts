@@ -1,0 +1,18 @@
+#!/bin/bash
+#SBATCH --ntasks=1 
+#SBATCH --partition=ampere
+#SBATCH --error=warp_ts_recon.err
+#SBATCH --output=warp_ts_recon.out
+#SBATCH --job-name=warp
+#SBATCH --mem-per-cpu=18GB
+#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=1
+#SBATCH --nodes=1
+
+
+export WARP_FORCE_MRC_FLOAT32=1
+
+WarpTools ts_reconstruct \
+--settings warp_tiltseries.settings \
+--angpix 8.48
+

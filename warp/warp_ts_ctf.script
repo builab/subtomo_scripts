@@ -1,0 +1,21 @@
+#!/bin/bash
+#SBATCH --ntasks=1 
+#SBATCH --partition=ampere
+#SBATCH --error=warp_ts_ctf.err
+#SBATCH --output=warp_ts_ctf.out
+#SBATCH --job-name=warp
+#SBATCH --mem-per-cpu=18GB
+#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=1
+#SBATCH --nodes=1
+
+
+
+WarpTools ts_ctf \
+--settings warp_tiltseries.settings \
+--range_high 7 \
+--defocus_max 8
+
+
+
+
