@@ -1,6 +1,5 @@
 #!/bin/bash
-# Written by ChatGPT, HB, 2024/12
-# NOT Working now
+# Written by ChatGPT, Fixed by HB, 2024/12
 
 
 # Check if at least one input file is provided
@@ -21,7 +20,7 @@ for input_tiltstack in "$@"; do
     output_image="${input_tiltstack%.mrc}_0degree.mrc"
 
     # Get the total number of slices (sections) in the stack
-    num_slices=$(header "$input_tiltstack" | grep "Number of columns, rows, sections" | awk '{print $8}')
+    num_slices=$(header "$input_tiltstack" | grep "Number of columns, rows, sections" | awk '{print $9}')
 
     # Check if num_slices was successfully extracted
     if [ -z "$num_slices" ]; then
@@ -30,10 +29,10 @@ for input_tiltstack in "$@"; do
     fi
 
     # Calculate the middle slice index
-    middle_index=$((num_slices / 2))
+    middle_index=$(((num_slices - 1) / 2))
 
     # Extract the middle slice
-    clip extract -z "$middle_index" "$input_tiltstack" "$output_image"
+    newstack -secs "$middle_index" "$input_tiltstack" "$output_image"
 
     # Output success message
     echo "Extracted middle slice (slice index $middle_index) from '$input_tiltstack' to '$output_image'."
