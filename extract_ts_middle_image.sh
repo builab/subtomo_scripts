@@ -25,7 +25,7 @@ for input_tiltstack in "$@"; do
     middle_index=$((num_slices / 2))
 
     # Extract the middle slice
-    clip extract -z "$middle_index" "$input_tiltstack" "$output_image"
+    newstack -secs "$middle_index" "$input_tiltstack" "$output_image"
 
     # Output success message
     echo "Extracted middle slice (slice index $middle_index) from '$input_tiltstack' to '$output_image'."
