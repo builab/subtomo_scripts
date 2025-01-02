@@ -9,8 +9,19 @@
 #SBATCH --nodes=1
 
 
+# Load WarpTools
+module load warpem
+
+# Import alignment
+settings="warp_tiltseries.settings"
+alignments="warp_tiltseries/tiltstack/"
+
+# Variable to edit
+alignment_angpix=2.12 # If import for IMOD old data, use unbinned pixel size
+
+# Run WarpTools ts_import_alignments with specified settings
 WarpTools ts_import_alignments \
---settings warp_tiltseries.settings \
---alignments warp_tiltseries/tiltstack/ \
---alignment_angpix 2.12
+  --settings "$settings" \
+  --alignments "$alignments" \
+  --alignment_angpix "$alignment_angpix"
 

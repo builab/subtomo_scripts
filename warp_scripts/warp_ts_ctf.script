@@ -9,8 +9,10 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --nodes=1
 
+# Load WarpTools
+module load warpem
 
-
+# Almost always use the same parameter for this
 WarpTools ts_ctf \
 --settings warp_tiltseries.settings \
 --range_high 7 \

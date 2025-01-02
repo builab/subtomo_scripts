@@ -8,6 +8,24 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --nodes=1
 
+# Load WarpTools
+module load warpem
 
-WarpTools ts_import --mdocs mdoc --frameseries warp_frameseries --tilt_exposure 4 --min_intensity 0.0 --output tomostar
+# Define variables
+mdocs="mdoc"
+frameseries="warp_frameseries"
+output="tomostar"
+
+#Variable to edit
+tilt_exposure=4
+min_intensity=0.0
+
+# Run WarpTools ts_import with specified settings
+WarpTools ts_import \
+  --mdocs "$mdocs" \
+  --frameseries "$frameseries" \
+  --tilt_exposure "$tilt_exposure" \
+  --min_intensity "$min_intensity" \
+  --output "$output"
+
 

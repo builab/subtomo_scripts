@@ -10,8 +10,18 @@
 #SBATCH --nodes=1
 
 
+# Load WarpTools
+module load warpem
 
-WarpTools ts_reconstruct --settings warp_tiltseries.settings --angpix 8.48
+
+# Define variables
+settings="warp_tiltseries.settings"
+angpix=2.12 # Use unbinned pixel size for already aligned TS
+
+# Run WarpTools ts_reconstruct with specified settings
+WarpTools ts_stack \
+  --settings "$settings" \
+  --angpix "$angpix"
 
 
 

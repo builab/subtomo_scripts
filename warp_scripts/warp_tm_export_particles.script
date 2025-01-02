@@ -10,15 +10,36 @@
 #SBATCH --nodes=1
 
 
+# Load WarpTools
+module load warpem
+
+
+# Define variables
+settings="warp_tiltseries.settings"
+input_directory="warp_tiltseries/matching"
+relative_output_paths=true # Set to true to include --relative_output_paths
+
+# Variables to edit
+input_pattern="*MT14PF_4nm_clean.star"
+output_star="relion_14PF_4nm/matching.star"
+output_angpix=4.24
+box=160
+diameter=380
+
+
+# Run WarpTools ts_export_particles with specified settings
 WarpTools ts_export_particles \
---settings warp_tiltseries.settings \
---input_directory warp_tiltseries/matching \
---input_pattern "*MT14PF_4nm_clean.star" \
---normalized_coords \
---output_star relion_14PF_4nm/matching.star \
---output_angpix 4.24 \
---box 160 \
---diameter 380 \
---relative_output_paths \
---2d
+  --settings "$settings" \
+  --input_directory $input_directory \
+  --input_pattern $input_pattern \
+  --normalized_coords \
+  --output_star "$output_star" \
+  --output_angpix "$output_angpix" \
+  --box "$box" \
+  --diameter "$diameter" \
+  --2d \
+  $( [ "$relative_output_paths" = true ] && echo "--relative_output_paths" )
+
+
+
 

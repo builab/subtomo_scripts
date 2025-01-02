@@ -8,6 +8,23 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --nodes=1
 
+# Load WarpTools
+module load warpem
 
-WarpTools create_settings --folder_data Frames --folder_processing warp_frameseries --output warp_frameseries.settings --extension "*.tif" --angpix 2.12 --gain_path Frames/CountRef_SPEF1MT2_00000_0.0.mrc --gain_flip_y --exposure 4
+# Define variables
+folder_data="Frames"
+angpix=2.12
+gain_path="Frames/CountRef_SPEF1MT2_00000_0.0.mrc"
+exposure_per_view=4 # e/A^2
 
+
+# Run WarpTools with specified settings
+WarpTools create_settings \
+  --folder_data "$folder_data" \
+  --folder_processing warp_frameseries \
+  --output warp_frameseries.settings \
+  --extension "*.tif" \
+  --angpix "$angpix" \
+  --gain_path "$gain_path" \
+  --gain_flip_y \
+  --exposure "$exposure_per_view"

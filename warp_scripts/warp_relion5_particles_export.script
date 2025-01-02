@@ -10,17 +10,31 @@
 #SBATCH --nodes=1
 
 
+# Load WarpTools
+module load warpem
 
+# Define variables
+settings="warp_tiltseries.settings"
+
+# Variables to edit
+input_star="doublet_2/coord_96nm.star"
+output_star="relion/coord_96nm.star"
+coords_angpix=8.48
+output_angpix=8.48
+box=168
+diameter=1000
+
+# Run WarpTools ts_export_particles with specified settings
 WarpTools ts_export_particles \
---settings warp_tiltseries.settings \
---input_star doublet_2/coord_96nm.star \
---output_star relion/coord_96nm.star \
---coords_angpix 8.48 \
---output_angpix 8.48 \
---box 168 \
---diameter 1000 \
---relative_output_paths \
---2d
+  --settings "$settings" \
+  --input_star "$input_star" \
+  --output_star "$output_star" \
+  --coords_angpix "$coords_angpix" \
+  --output_angpix "$output_angpix" \
+  --box "$box" \
+  --diameter "$diameter" \
+  --relative_output_paths \
+  --2d
 
 
 

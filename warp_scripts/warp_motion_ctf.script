@@ -10,6 +10,24 @@
 #SBATCH --nodes=1
 
 
+module load warpem
 
-WarpTools fs_motion_and_ctf --settings warp_frameseries.settings --m_grid 1x1x10 --c_grid 2x2x1 --c_range_max 7 --c_defocus_max 8 --c_use_sum --out_averages --out_average_halves
 
+# Define variables
+settings="warp_frameseries.settings"
+m_grid="1x1x10"
+c_grid="2x2x1"
+c_range_max=7
+c_defocus_max=8
+out_average_halves=true # Set to true if you want to include --out_average_halves for denoising
+
+# Build the command dynamically based on flags
+WarpTools fs_motion_and_ctf \
+  --settings "$settings" \
+  --m_grid "$m_grid" \
+  --c_grid "$c_grid" \
+  --c_range_max "$c_range_max" \
+  --c_defocus_max "$c_defocus_max" \
+  --c_use_sum \
+  --out_averages \
+  $( [ "$out_average_halves" = true ] && echo "--out_average_halves" )

@@ -1,14 +1,13 @@
 #!/bin/bash
 #SBATCH --ntasks=1 
 #SBATCH --partition=ampere
-#SBATCH --error=warp_ts_recon.err
-#SBATCH --output=warp_ts_recon.out
+#SBATCH --error=warp_ts_recon_denoise.err
+#SBATCH --output=warp_ts_recon_denoise.out
 #SBATCH --job-name=warp
 #SBATCH --mem-per-cpu=18GB
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=1
 #SBATCH --nodes=1
-
 
 # Load WarpTools
 module load warpem
@@ -20,9 +19,17 @@ export WARP_FORCE_MRC_FLOAT32=1
 settings="warp_tiltseries.settings"
 
 # Variables to edit
-angpix=8.48 # Reconstruction pixel size
+angpix=16 # Reconstruction pixel size for denoising should be ~12-16 Angstrom
+# If you want to do 1 tomogram only, otherwise, put empty quote ""
+input_data="tomostar/SPEF1MT2_018.tomostar"
+dont_invert=true # Set to true to NOT invert contrast
+
+
 
 # Run WarpTools ts_reconstruct with specified settings
 WarpTools ts_reconstruct \
   --settings "$settings" \
-  --angpix "$angpix"
+  --angpix "$angpix" \
+  --halfmap_frames \
+  $( [ "$dont_invert" = true ] && echo "--dont_invert" )
+  $( [ -n "$input_data" ] && echo "--input_data $input_data" )
