@@ -16,12 +16,18 @@ module load warpem
 
 # Define variables
 settings="warp_tiltseries.settings"
+
+# Variables to edit
 angpix=2.12 # Use unbinned pixel size for already aligned TS
+
+# Empty quote "" for all, 1 tomogram only  like "tomostar/SPEF1MT2_018.tomostar"
+input_data=""
 
 # Run WarpTools ts_reconstruct with specified settings
 WarpTools ts_stack \
   --settings "$settings" \
   --angpix "$angpix"
+  $( [ -n "$input_data" ] && echo "--input_data $input_data" )
 
 
 

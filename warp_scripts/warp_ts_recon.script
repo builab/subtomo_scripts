@@ -22,8 +22,9 @@ settings="warp_tiltseries.settings"
 # Variables to edit
 angpix=8.48 # Reconstruction pixel size
 dont_invert=true # Set to true to NOT invert contrast
-# If you want to do 1 tomogram only, otherwise, put empty quote ""
-input_data="tomostar/SPEF1MT2_018.tomostar"
+
+# Empty quote "" for all, 1 tomogram only  like "tomostar/SPEF1MT2_018.tomostar"
+input_data=""
 
 # Run WarpTools ts_reconstruct with specified settings
 WarpTools ts_reconstruct \
