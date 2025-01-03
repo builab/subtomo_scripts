@@ -15,6 +15,7 @@ fi
 
 # Define the base directory where the script is being run from
 BASE_DIR=$(pwd)
+TS_DIR="warp_tiltseries/tiltstack/"
 
 # Get the folder pattern from the command-line argument
 FOLDER_PATTERN="$1"
@@ -34,9 +35,10 @@ for folder in "$BASE_DIR"/$FOLDER_PATTERN; do
         # Check if all required files exist
         if [[ -f "$align_com_file" && -f "$input_tilt_file" && -f "$input_xf_file" ]]; then
             echo "Processing files in $folder_name..."
-            
+            echo "python $SCRIPT_DIR/copy_xf_tlt_files_to_warp.py $align_com_file $input_tilt_file $input_xf_file $TS_DIR/$folder_name"
+
             # Run the Python script located in SCRIPT_DIR
-            python "$SCRIPT_DIR/copy_xf_tlt_files_to_warp.py" "$align_com_file" "$input_tilt_file" "$input_xf_file"
+            python "$SCRIPT_DIR/copy_xf_tlt_files_to_warp.py" "$align_com_file" "$input_tilt_file" "$input_xf_file" "$TS_DIR/$folder_name"
         else
             echo "Warning: Missing required files in $folder_name. Skipping..."
         fi
