@@ -1,5 +1,6 @@
 #!/bin/bash
 # Written by ChatGPT, edited by HB and Avrin Ghanaeian
+# Very bad from ChatGPT
 # Ensure that the aligned tilt series is accessible from the project folder
 # Usage: ./copy_xf_tlt_files_to_warp_batch.sh CU428_TS_001 CU428_TS_002 ... or
 # Usage: ./copy_xf_tlt_files_to_warp_batch.sh CU428_TS_001 CU428_TS_*
