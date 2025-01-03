@@ -124,8 +124,9 @@ def main():
 
 
     exclude_list = get_exclude_list(align_com_file)
-    filter_and_invert_tlt_file(input_tlt_file, output_tlt_file, exclude_list)
     filter_xf_file(input_xf_file, output_xf_file, exclude_list)
+    filter_and_invert_tlt_file(input_tlt_file, output_tlt_file, exclude_list)
+
 
 if __name__ == "__main__":
     main()
