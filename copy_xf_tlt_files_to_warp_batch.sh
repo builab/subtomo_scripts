@@ -39,6 +39,11 @@ for folder in "$BASE_DIR"/$FOLDER_PATTERN; do
 
             # Run the Python script located in SCRIPT_DIR
             python "$SCRIPT_DIR/copy_xf_tlt_files_to_warp.py" "$align_com_file" "$input_xf_file" "$input_tlt_file" "$TS_DIR/$folder_name"
+            
+            # Capture and handle errors gracefully
+            if [[ $? -ne 0 ]]; then
+                echo "Error: Processing failed for $folder_name. Skipping to the next folder..."
+            fi
         else
             echo "Warning: Missing required files in $folder_name. Skipping..."
         fi
