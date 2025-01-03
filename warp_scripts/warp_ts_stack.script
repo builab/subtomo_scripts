@@ -26,7 +26,7 @@ input_data=""
 # Run WarpTools ts_reconstruct with specified settings
 WarpTools ts_stack \
   --settings "$settings" \
-  --angpix "$angpix"
+  --angpix "$angpix" \
   $( [ -n "$input_data" ] && echo "--input_data $input_data" )
 
 
