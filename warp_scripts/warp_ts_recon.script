@@ -29,6 +29,6 @@ input_data=""
 # Run WarpTools ts_reconstruct with specified settings
 WarpTools ts_reconstruct \
   --settings "$settings" \
-  --angpix "$angpix"
+  --angpix "$angpix" \
   $( [ "$dont_invert" = true ] && echo "--dont_invert" )
   $( [ -n "$input_data" ] && echo "--input_data $input_data" )
