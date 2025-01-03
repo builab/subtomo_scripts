@@ -22,6 +22,9 @@ c_range_max=7 # This only change when high res
 c_defocus_max=8
 out_average_halves=true # Set to true if you want to include --out_average_halves for denoising
 
+# Empty quote "" for all, 1-2 movie only  like "frames/ARMC9_00591_-9.0.tif frames/ARMC9_00592_-12.0.tif" or a text file list
+input_data=""
+
 # Build the command dynamically based on flags
 WarpTools fs_motion_and_ctf \
   --settings "$settings" \
@@ -32,3 +35,4 @@ WarpTools fs_motion_and_ctf \
   --c_use_sum \
   --out_averages \
   $( [ "$out_average_halves" = true ] && echo "--out_average_halves" )
+  $( [ -n "$input_data" ] && echo "--input_data $input_data" )
