@@ -10,14 +10,15 @@
 #SBATCH --nodes=1
 
 
+# Load WarpTools
 module load warpem
 
 
 # Define variables
 settings="warp_frameseries.settings"
-m_grid="1x1x10"
+m_grid="1x1x10" # 10 is the number of subframes
 c_grid="2x2x1"
-c_range_max=7
+c_range_max=7 # This only change when high res
 c_defocus_max=8
 out_average_halves=true # Set to true if you want to include --out_average_halves for denoising
 

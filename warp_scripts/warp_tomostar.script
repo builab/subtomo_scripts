@@ -16,7 +16,7 @@ mdocs="mdoc"
 frameseries="warp_frameseries"
 output="tomostar"
 
-#Variable to edit
+#Variables to edit
 tilt_exposure=4
 min_intensity=0.0
 

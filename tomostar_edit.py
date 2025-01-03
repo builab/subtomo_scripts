@@ -1,3 +1,8 @@
+# Script to read align.com from existing aligned tomograms to filter Warp tomostar
+# Usage:
+# tomostar_edit.py tomostar/TS_01.tomostar TS_01/align.com
+# Written by ChatGPT, edited by Avrin Ghanaeian, 2024/12
+
 import os
 import shutil
 import re
