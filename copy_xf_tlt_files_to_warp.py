@@ -40,8 +40,8 @@ def get_exclude_list(file_path):
         print(f"An error occurred: {e}")
         return []
 
-def filter_and_invert_tilt_file(input_path, output_path, exclude_indices):
-    """Filter a tilt file to exclude specific 1-based lines and invert the sign of remaining values."""
+def filter_and_invert_tlt_file(input_path, output_path, exclude_indices):
+    """Filter a .tlt file to exclude specific 1-based lines and invert the sign of remaining values."""
     try:
         with open(input_path, 'r') as infile:
             lines = infile.readlines()
@@ -62,7 +62,7 @@ def filter_and_invert_tilt_file(input_path, output_path, exclude_indices):
         with open(output_path, 'w') as outfile:
             outfile.writelines(filtered_lines)
 
-        print(f"Filtered and inverted tilt file written to {output_path}")
+        print(f"Filtered and inverted .tlt file written to {output_path}")
         print(f"Excluded lines: {excluded_lines}")
 
     except FileNotFoundError:
@@ -70,7 +70,7 @@ def filter_and_invert_tilt_file(input_path, output_path, exclude_indices):
     except Exception as e:
         print(f"An error occurred: {e}")
 
-def filter_text_file(input_path, output_path, exclude_indices):
+def filter_xf_file(input_path, output_path, exclude_indices):
     """Filter a text file (e.g., .xf file) to exclude specific 1-based lines."""
     try:
         with open(input_path, 'r') as infile:
@@ -111,20 +111,21 @@ def main():
     args = parser.parse_args()
 
     align_com_file = args.align_com_file
-    input_tlt_file = args.input_tlt_file
     input_xf_file = args.input_xf_file
+    input_tlt_file = args.input_tlt_file
 
     # Output directory
-    output_directory = "warp_tiltseries/tiltstack"
+    output_directory = "warp_tiltseries/tiltstack/" +  os.path.splitext(os.path.basename(input_xf_file))[0]
     os.makedirs(output_directory, exist_ok=True)
 
     # Define output paths
-    output_tilt_file = os.path.join(output_directory, os.path.basename(input_tlt_file))
     output_xf_file = os.path.join(output_directory, os.path.basename(input_xf_file))
+    output_tlt_file = os.path.join(output_directory, os.path.basename(input_tlt_file))
+
 
     exclude_list = get_exclude_list(align_com_file)
-    filter_and_invert_tilt_file(input_tlt_file, output_tilt_file, exclude_list)
-    filter_text_file(input_xf_file, output_xf_file, exclude_list)
+    filter_and_invert_tlt_file(input_tlt_file, output_tlt_file, exclude_list)
+    filter_xf_file(input_xf_file, output_xf_file, exclude_list)
 
 if __name__ == "__main__":
     main()
