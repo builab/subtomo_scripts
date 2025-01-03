@@ -29,16 +29,16 @@ for folder in "$BASE_DIR"/$FOLDER_PATTERN; do
         
         # Define the input file paths
         align_com_file="$folder/align.com"
-        input_tilt_file="$folder/${folder_name}.tlt"
         input_xf_file="$folder/${folder_name}.xf"
-        
+        input_tlt_file="$folder/${folder_name}.tlt"
+      
         # Check if all required files exist
-        if [[ -f "$align_com_file" && -f "$input_tilt_file" && -f "$input_xf_file" ]]; then
+        if [[ -f "$align_com_file" && -f "$input_tlt_file" && -f "$input_xf_file" ]]; then
             echo "Processing files in $folder_name..."
-            echo "python $SCRIPT_DIR/copy_xf_tlt_files_to_warp.py $align_com_file $input_tilt_file $input_xf_file $TS_DIR/$folder_name"
+            echo "python $SCRIPT_DIR/copy_xf_tlt_files_to_warp.py $align_com_file $input_xf_file $input_tlt_file $TS_DIR/$folder_name"
 
             # Run the Python script located in SCRIPT_DIR
-            python "$SCRIPT_DIR/copy_xf_tlt_files_to_warp.py" "$align_com_file" "$input_tilt_file" "$input_xf_file" "$TS_DIR/$folder_name"
+            python "$SCRIPT_DIR/copy_xf_tlt_files_to_warp.py" "$align_com_file" "$input_xf_file" "$input_tlt_file" "$TS_DIR/$folder_name"
         else
             echo "Warning: Missing required files in $folder_name. Skipping..."
         fi

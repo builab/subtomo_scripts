@@ -1,7 +1,7 @@
 # Script to copy xf and tlt files from existing IMOD alignment to the warp_tiltseries/tiltstack
 # Read the align.com file for excluded view and filter that out from the xf and tlt before copying
 # Usage:
-# copy_xf_tlt_files_to_warp.py align.com tlt_file xf_file output_dir
+# copy_xf_tlt_files_to_warp.py align.com xf_file tlt_file output_dir
 # Written by ChatGPT, edited by HB and Avrin Ghanaeian
 
 import os
@@ -104,7 +104,7 @@ def filter_xf_file(input_path, output_path, exclude_indices):
         print(f"An error occurred: {e}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Filter and copy .tlt and .xf files.")
+    parser = argparse.ArgumentParser(description="Filter and copy .xf and .tlt files.")
     parser.add_argument("align_com_file", help="Path to the align.com file.")
     parser.add_argument("input_xf_file", help="Path to the input .xf file.")
     parser.add_argument("input_tlt_file", help="Path to the input .tlt file.")
