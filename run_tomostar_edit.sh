@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# Written by ChatGPT, editted by HB & Avrin Ghanaeian, 2024/12
 # Ensure the script is executed with the correct environment
 # The $BASE_DIR should contain both warp_tiltseries folder and all aligned tilt series
 # Usage: ./run_tomostar_edit.sh
