@@ -12,11 +12,22 @@
 # Load WarpTools
 module load warpem
 
+# Define variables
+settings="warp_tiltseries.settings"
+
+# Variables to edit, range_high=7, defocus_max=8 for normal tomo
+range_high=7
+defocus_max=8
+
+# Empty quote "" for all, 1 tomogram only  like "tomostar/SPEF1MT2_018.tomostar"
+input_data=""
+
 # Almost always use the same parameter for this
 WarpTools ts_ctf \
---settings warp_tiltseries.settings \
---range_high 7 \
---defocus_max 8
+--settings "$settings" \
+--range_high "$range_high" \
+--defocus_max "$defocus_max" \
+  $( [ -n "$input_data" ] && echo "--input_data $input_data" )
 
 
 
