@@ -23,6 +23,8 @@ coords_angpix=8.48
 output_angpix=8.48
 box=168
 diameter=1000
+output_processing="warp_tiltseries/particleseries" # If you want different output folder
+
 
 # Run WarpTools ts_export_particles with specified settings
 WarpTools ts_export_particles \
@@ -34,7 +36,8 @@ WarpTools ts_export_particles \
   --box "$box" \
   --diameter "$diameter" \
   --relative_output_paths \
-  --2d
+  --2d \
+  --output_processing "$output_processing"
 
 
 

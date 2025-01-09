@@ -25,6 +25,7 @@ output_star="relion_14PF_4nm/matching.star"
 output_angpix=4.24
 box=160
 diameter=380
+output_processing="warp_tiltseries/particleseries" # If you want different output folder
 
 
 # Run WarpTools ts_export_particles with specified settings
@@ -38,6 +39,7 @@ WarpTools ts_export_particles \
   --box "$box" \
   --diameter "$diameter" \
   --2d \
+  --output_processing "$output_processing" \
   $( [ "$relative_output_paths" = true ] && echo "--relative_output_paths" )
 
 
