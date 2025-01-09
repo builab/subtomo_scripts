@@ -1,0 +1,31 @@
+#!/bin/bash
+#SBATCH --ntasks=1 
+#SBATCH --partition=cpu
+#SBATCH --error=warp_ts_defocus_hand.err
+#SBATCH --output=warp_ts_defocus_hand.out
+#SBATCH --job-name=warp
+#SBATCH --mem-per-cpu=18GB
+#SBATCH --cpus-per-task=4
+#SBATCH --nodes=1
+
+
+# Load WarpTools
+module load warpem
+
+# Variable
+settings="warp_tiltseries.settings"
+
+# Flipping defocus. After running this command, check if it is recommended to flip, then make
+# set_flip=true and run the command again
+set_flip=false
+
+# Run WarpTools ts_import_alignments with specified settings
+WarpTools ts_defocus_hand \
+--settings "$settings" \
+--check
+
+
+# Flipping
+WarpTools ts_defocus_hand \
+  --settings "$settings" \
+  $( [ "$set_flip" = true ] && echo "--set_flip" )
