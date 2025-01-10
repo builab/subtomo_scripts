@@ -178,7 +178,6 @@ if __name__=='__main__':
 	parser.add_argument('--imagesize', help='Subtomo image size',required=True, default=2)
 	parser.add_argument('--path_tomostar', help='Path to tomostar',required=True)
 	parser.add_argument('--helicalCol', help='Column from table to used as helicalID',required=False,default=0)
-	parser.add_argument('--randomSubset', help='Divide random subset for helical (1 = yes)',required=False,default=0)
 
 
 	args = parser.parse_args()
