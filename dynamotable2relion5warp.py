@@ -116,7 +116,7 @@ def dynamo2relion5warp (table, output_star_file, binFactor, imageSize, helicalCo
 		else:
 			df_particles = pd.concat([df_particles, df], ignore_index=True)
 
-		print(df)
+		#print(df)
 		#print(len(df_particles))
 	
 		#df_particles['rlnTomoParticleId'] = df_particles.groupby('rlnTomoName').cumcount() + 1
