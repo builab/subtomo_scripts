@@ -37,7 +37,6 @@ WarpTools ts_export_particles \
   --diameter "$diameter" \
   --relative_output_paths \
   --2d \
-  --output_processing "$output_processing"
 
 
 

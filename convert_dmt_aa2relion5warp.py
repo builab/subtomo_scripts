@@ -124,8 +124,6 @@ if __name__=='__main__':
 	tomoNo = 0;
 	df_all = None
 	
-	# Template for tomo_description
-	orderList = 'input/order_list.csv'
 	
 	tomo_header_list = ["rlnOpticsGroup", "rlnOpticsGroupName", "rlnSphericalAberration", "rlnVoltage", "rlnTomoTiltSeriesPixelSize", "rlnCtfDataAreCtfPremultiplied", "rlnImageDimensionality", "rlnTomoSubtomogramBinning", "rlnImagePixelSize", "rlnImageSize", "rlnAmplitudeContrast"]
 	df_tomo = pd.DataFrame(columns = tomo_header_list)
