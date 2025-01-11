@@ -12,11 +12,11 @@ import xml.etree.ElementTree as ET
 import glob
 
 if __name__=='__main__':
-	xmlfiles = glob.glob('*.mrc.xml')
+	xmlfiles = glob.glob('*.xml')
 
 	for xmlfile in xmlfiles:
 		ts = ET.parse(xmlfile)
-		outfile = xmlfile.replace('.mrc.xml', '_output.txt')
+		outfile = xmlfile.replace('.xml', '_output.txt')
 		root = ts.getroot()
 		
 		z = []
