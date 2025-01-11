@@ -35,8 +35,10 @@ WarpTools ts_export_particles \
   --output_angpix "$output_angpix" \
   --box "$box" \
   --diameter "$diameter" \
+  --output_processing "$output_processing" \
   --relative_output_paths \
   --2d \
+
 
 
 
