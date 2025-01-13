@@ -160,8 +160,8 @@ if __name__=='__main__':
 			
 		print('   -->' + str(doubletId))
 		# This part need to be fixed
-		starFile = 'star_corr/' + record[1]  + '.star'
-		docFile = 'doc_corr/doc_total_' + record[0] + '.spi'
+		starFile = 'star/' + record[1]  + '.star'
+		docFile = 'doc/doc_total_' + record[0] + '.spi'
 		# Remove the comment in spider file
 		preprocess_bstar(starFile)
 		preprocess_spider_doc(docFile)
