@@ -1,0 +1,19 @@
+#!/bin/bash
+#SBATCH --ntasks=1 
+#SBATCH --partition=titan
+#SBATCH --error=warp_fidder_predict.err
+#SBATCH --output=warp_fidder_predict.out
+#SBATCH --job-name=warp_fidder
+#SBATCH --mem-per-cpu=10GB
+#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=10
+#SBATCH --nodes=1
+
+
+# Load WarpTools
+module load anaconda
+
+conda activate fiddle
+
+# Check carefully for the right folder, this script can only use 1 GPU
+bash fidder_predict_batch.sh warp_frameseries/average/CHE12over__*.mrc -p 0.95 -c dead_pixel_coordinates.txt -cs 3
