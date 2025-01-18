@@ -38,7 +38,7 @@ def erase_gold(filename, input_dir, mask_dir, norename, use_coord, xdim, ydim):
 		if writeMask:
 			mrc_mask_path = os.path.join(mask_dir, filename)
 			with mrcfile.new(mrc_mask_path, overwrite=True) as mrc:
-				mrc.set_data(mask_uint8.numpy())
+				mrc.set_data(mask.numpy())
 	else:
 		mask_path = os.path.join(mask_dir, filename)
 		if not os.path.exists(mask_path):
