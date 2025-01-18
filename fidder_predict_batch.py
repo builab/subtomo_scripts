@@ -92,8 +92,6 @@ def make_mask(filename, input_dir, mask_dir, angpix, thresh, coords_file, deadpi
 			mrc.set_data(mask_uint8.numpy())
 		print(f"Mask created for {filename}.")
 
-)
-
 def main():
 	parser = argparse.ArgumentParser(description="Process MRC files in a directory with specified parameters.")
 	parser.add_argument('--idir', required=True, help="Input directory containing .mrc files.")
