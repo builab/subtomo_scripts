@@ -38,7 +38,7 @@ def erase_gold(filename, input_dir, mask_dir, norename, use_coord):
 		if writeMask:
 			mrc_mask_path = os.path.join(mask_dir, filename)
 			with mrcfile.new(mrc_mask_path, overwrite=True) as mrc:
-        		mrc.set_data(mask_uint8.numpy())
+				mrc.set_data(mask_uint8.numpy())
 	else:
 		mask_path = os.path.join(mask_dir, filename)
 		if not os.path.exists(mask_path):
@@ -87,33 +87,33 @@ def erase_gold_old(filename, input_dir, mask_dir, norename):
 	rename_files(mic_path, mrc_output_path, norename)
 	
 def read_coordinates_to_mask(coord_file, xdim, ydim):
-    """
-    Read a coordinate file and create a numpy array of size (xdim, ydim) with values set to 1
-    at the given coordinates and 0 elsewhere.
+	"""
+	Read a coordinate file and create a numpy array of size (xdim, ydim) with values set to 1
+	at the given coordinates and 0 elsewhere.
 
-    Args:
-        coord_file (str): Path to the coordinate file.
-                         Each line in the file should contain "X Y" (1-based indexing).
-        xdim (int): Width of the output array.
-        ydim (int): Height of the output array.
+	Args:
+		coord_file (str): Path to the coordinate file.
+						 Each line in the file should contain "X Y" (1-based indexing).
+		xdim (int): Width of the output array.
+		ydim (int): Height of the output array.
 
-    Returns:
-        numpy.ndarray: A 2D numpy array of shape (ydim, xdim) with the specified values.
-    """
-    # Initialize an array filled with zeros
-    array = np.zeros((ydim, xdim), dtype=np.uint8)
+	Returns:
+		numpy.ndarray: A 2D numpy array of shape (ydim, xdim) with the specified values.
+	"""
+	# Initialize an array filled with zeros
+	array = np.zeros((ydim, xdim), dtype=np.uint8)
 
-    # Read the coordinates from the file
-    with open(coord_file, 'r') as f:
-        for line in f:
-            # Parse the coordinates (convert from 1-based to 0-based indexing)
-            parts = line.strip().split()
-            if len(parts) != 2:
-                continue  # Skip invalid lines
-            x, y = map(int, parts)
-            array[y - 1, x - 1] = 1  # Convert to 0-based indexing and set to 1
+	# Read the coordinates from the file
+	with open(coord_file, 'r') as f:
+		for line in f:
+			# Parse the coordinates (convert from 1-based to 0-based indexing)
+			parts = line.strip().split()
+			if len(parts) != 2:
+				continue  # Skip invalid lines
+			x, y = map(int, parts)
+			array[y - 1, x - 1] = 1  # Convert to 0-based indexing and set to 1
 
-    return array
+	return array
 	
 def rename_files(file, erased_file, norename):
 	"""
