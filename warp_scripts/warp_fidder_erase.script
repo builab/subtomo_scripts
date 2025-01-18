@@ -8,6 +8,8 @@
 #SBATCH --cpus-per-task=20
 #SBATCH --nodes=1
 
+# On paris
+# export LD_LIBRARY_PATH=/storage/software/anaconda3/envs/subtomo/lib/python3.10/site-packages/nvidia/nvjitlink/lib:$LD_LIBRARY_PATH
 
 # Load WarpTools
 module load anaconda
@@ -15,7 +17,7 @@ module load anaconda
 conda activate fiddle
 
 # Define variables
-IDIRS=""warp_frameseries/average/even warp_frameseries/average/odd"  # Space-separated list of directories such as "warp_frameseries/average warp_frameseries/average/even warp_frameseries/average/odd"
+IDIRS="warp_frameseries/average/even warp_frameseries/average/odd"  # Space-separated list of directories such as "warp_frameseries/average warp_frameseries/average/even warp_frameseries/average/odd"
 MDIR="warp_frameseries/average/mask/"
 NUM_THREADS=20  # Adjust the number of threads as needed
 

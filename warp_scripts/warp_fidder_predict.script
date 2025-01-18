@@ -9,6 +9,8 @@
 #SBATCH --cpus-per-task=10
 #SBATCH --nodes=1
 
+# On paris
+# export LD_LIBRARY_PATH=/storage/software/anaconda3/envs/subtomo/lib/python3.10/site-packages/nvidia/nvjitlink/lib:$LD_LIBRARY_PATH
 
 # Load WarpTools
 module load anaconda
