@@ -92,7 +92,7 @@ def main():
 
 	# Process each .mrc file
 	with Pool(args.j) as p:
-		p.starmap(erase_gold, [(mrcfile, args.idir, args.mdir, args.norename) for mrc_file in mrc_files])
+		p.starmap(erase_gold, [(mrc_file, args.idir, args.mdir, args.norename) for mrc_file in mrc_files])
 	print('################################ all gold erased for ' + args.idir + ' ################################')
 
 if __name__ == '__main__':
