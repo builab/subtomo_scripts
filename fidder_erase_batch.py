@@ -145,9 +145,9 @@ def main():
 	parser.add_argument('--idir', required=True, help="Input directory containing .mrc files.")
 	parser.add_argument('--mdir', required=True, help="Mask directory to store output .mrc files.")
 	parser.add_argument('--norename', action='store_true', help="Don't rename output file to the same as input file.")
-	parser.add_argument('--j', type=int, required=True, default=20, help="Number of threads")
-	parser.add_argument('--xdim', type=int, required=True, default=4092, help="Micrograph X dimension (default 4092)")
-	parser.add_argument('--ydim', type=int, required=True, default=5760, help="Micrograph Y dimension (default 5760)")
+	parser.add_argument('--j', type=int, default=20, help="Number of threads")
+	parser.add_argument('--xdim', type=int, default=4092, help="Micrograph X dimension (default 4092)")
+	parser.add_argument('--ydim', type=int, default=5760, help="Micrograph Y dimension (default 5760)")
 	parser.add_argument('--use_coord', action='store_true', help="Use coordinate txt file, not mrc.")
 
 
