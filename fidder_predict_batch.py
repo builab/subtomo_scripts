@@ -16,6 +16,28 @@ def draw_circle(array, center_x, center_y, radius):
     y_indices, x_indices = np.ogrid[:height, :width]
     mask = (x_indices - center_x)**2 + (y_indices - center_y)**2 <= radius**2
     array[mask] = 1
+    
+def write_indices_to_txt(mask, output_file):
+    """
+    Write the 1-based indices of pixels with value 1 in a numpy array to a .txt file.
+
+    Args:
+        mask (numpy.ndarray): The input 2D numpy array containing values 0 and 1.
+        output_file (str): Path to the output .txt file.
+    """
+    # Find the indices of pixels with value 1
+    y_indices, x_indices = np.where(mask == 1)
+    
+    # Convert to 1-based indexing
+    x_indices += 1
+    y_indices += 1
+
+    # Write to the output file
+    with open(output_file, 'w') as f:
+        for x, y in zip(x_indices, y_indices):
+            f.write(f"{x} {y}\n")
+    print(f"Mask written to {output_file}")
+    
 
 def make_mask(filename, input_dir, mask_dir, angpix, thresh, coords_file, deadpixel_radius, ignore_existing):
     """ Apply fidder's predict_fiducial_mask function to a single micrograph and save the resultant mask as a new mrc file.
@@ -61,6 +83,10 @@ def make_mask(filename, input_dir, mask_dir, angpix, thresh, coords_file, deadpi
         mrc.set_data(mask_uint8.numpy())
 
     print(f"Mask created for {filename}.")
+    # Write mask to txt file
+    output_txt = f"{os.path.splitext(filename)[0]}.txt"
+    write_indices_to_txt(mask_unit8.numpy, os.path.join(mask_dir, output_txt)
+)
 
 def main():
     parser = argparse.ArgumentParser(description="Process MRC files in a directory with specified parameters.")
