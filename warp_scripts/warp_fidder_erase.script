@@ -22,7 +22,7 @@ MDIR="warp_frameseries/average/mask/"
 NUM_THREADS=20  # Adjust the number of threads as needed
 XDIM=5760 # K3 McGill
 YDIM=4092 # K3 McGill
-USE_COORD=true
+USE_TXT=true
 NORENAME=false # Default = false, for testing, set to true
 
 # Loop through each directory in IDIRS
@@ -34,7 +34,7 @@ for IDIR in $IDIRS; do
         --j "$NUM_THREADS" \
         --xdim "$XDIM" \
         --ydim "$YDIM" \
-        $( [ "$USE_COORD" = true ] && echo "--use_coord" )
+        $( [ "$USE_TXT" = true ] && echo "--use_txt" )
         $( [ "$NORENAME" = true ] && echo "--norename" )
 
 done

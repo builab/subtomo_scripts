@@ -24,7 +24,10 @@ ANGPIX=3.37
 PROBABILITY=0.95
 DEADPIX_FILE="dead_pixel_coordinates.txt"
 DEADPIX_RADIUS=3
-IGNORE_EXISTING="--ignore_existing"
+IGNORE_EXISTING="--ignore_existing" # Ignore previously predicted file
+USE_TXT=true
+
+
 
 # Check carefully for the right folder, this script can only use 1 GPU
 python subtomo_scripts/fidder_predict_batch.py \
@@ -34,4 +37,5 @@ python subtomo_scripts/fidder_predict_batch.py \
     --p "$PROBABILITY" \
     --deadpix_file "$DEADPIX_FILE" \
     --deadpix_radius "$DEADPIX_RADIUS" \
+    $( [ "$USE_TXT" = true ] && echo "--use_txt \\" )
     $IGNORE_EXISTING

@@ -15,7 +15,7 @@ from fidder.predict import predict_fiducial_mask
 from fidder.erase import erase_masked_region
 
 
-def erase_gold(filename, input_dir, mask_dir, norename, use_coord, xdim, ydim):
+def erase_gold(filename, input_dir, mask_dir, norename, use_txt, xdim, ydim):
 	"""Apply fidder's erase_masked_region function to a single frame and save the result as a new mrc file.
 		
 	Args:
@@ -28,7 +28,7 @@ def erase_gold(filename, input_dir, mask_dir, norename, use_coord, xdim, ydim):
 	mic_path = os.path.join(input_dir, filename)
 	
 	# Check for using txt file instead of mrc file
-	if use_coord: 
+	if use_txt: 
 		mask_path = os.path.join(mask_dir, 	f"{os.path.splitext(filename)[0]}.txt")
 		if not os.path.exists(mask_path):
 			print(f"Error: Mask path '{mask_path}' does not exist. Skip!!")
@@ -150,7 +150,7 @@ def main():
 	parser.add_argument('--j', type=int, default=20, help="Number of threads")
 	parser.add_argument('--xdim', type=int, default=5760, help="Micrograph X dimension (default 5760)")
 	parser.add_argument('--ydim', type=int, default=4092, help="Micrograph Y dimension (default 4092)")
-	parser.add_argument('--use_coord', action='store_true', help="Use coordinate txt file, not mrc.")
+	parser.add_argument('--use_txt', action='store_true', help="Use coordinate txt file, not mrc.")
 
 
 
@@ -172,7 +172,7 @@ def main():
 
 	# Process each .mrc file
 	with Pool(args.j) as p:
-		p.starmap(erase_gold, [(mrc_file, args.idir, args.mdir, args.norename, args.use_coord, args.xdim, args.ydim) for mrc_file in mrc_files])
+		p.starmap(erase_gold, [(mrc_file, args.idir, args.mdir, args.norename, args.use_txt, args.xdim, args.ydim) for mrc_file in mrc_files])
 	print('################################ all gold erased for ' + args.idir + ' ################################')
 
 if __name__ == '__main__':
