@@ -24,7 +24,7 @@ def erase_gold(filename, input_dir, mask_dir, norename, use_coord, xdim, ydim):
 		mask_dir (str) : 
 	"""
 	
-	writeMask = True # Set True for debugging, set False for operation
+	writeMask = False # Set True for debugging, set False for operation
 	mic_path = os.path.join(input_dir, filename)
 	
 	# Check for using txt file instead of mrc file
