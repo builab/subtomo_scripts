@@ -4,6 +4,7 @@
 # Separate mask & prediction folder so we can use the mask to correct for even/odd separately from average
 
 import os
+import shutil
 import mrcfile
 import torch
 from multiprocessing import Pool
