@@ -85,7 +85,7 @@ def make_mask(filename, input_dir, mask_dir, angpix, thresh, coords_file, deadpi
     print(f"Mask created for {filename}.")
     # Write mask to txt file
     output_txt = f"{os.path.splitext(filename)[0]}.txt"
-    write_indices_to_txt(mask_uint8.numpy, os.path.join(mask_dir, output_txt)
+    write_indices_to_txt(mask_uint8.numpy(), os.path.join(mask_dir, output_txt)
 )
 
 def main():
