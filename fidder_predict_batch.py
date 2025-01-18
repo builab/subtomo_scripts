@@ -87,7 +87,7 @@ def make_mask(filename, input_dir, mask_dir, angpix, thresh, coords_file, deadpi
 	output_txt = f"{os.path.splitext(filename)[0]}.txt"
 	write_indices_to_txt(mask_uint8.numpy(), os.path.join(mask_dir, output_txt)
 	
-	if not use_txt:
+	if use_txt == False:
 		with mrcfile.new(mask_path, overwrite=True) as mrc:
 			mrc.set_data(mask_uint8.numpy())
 		print(f"Mask created for {filename}.")
@@ -103,7 +103,7 @@ def main():
 	parser.add_argument('--deadpix_file', required=False, default="", help="Text file containing dead pixel coordinates.")
 	parser.add_argument('--deadpix_radius', type=int, default=3, help="Radius around dead pixels to mask (default: 3).")
 	parser.add_argument('--ignore_existing', action='store_true', help="Skip files that already have masks in the mask directory.")
-	parser.add_argument('--use_txt', action='store_true', help="Only write coordinate, not mrc mask file")
+	parser.add_argument('--use_txt', action='store_true', help="Only write coordinates, not mrc mask files")
 
 	args = parser.parse_args()
 
