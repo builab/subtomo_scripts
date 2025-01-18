@@ -15,5 +15,21 @@ module load anaconda
 
 conda activate fiddle
 
+# Define variables
+IDIR="warp_frameseries/average"
+MDIR="warp_frameseries/average/mask/"
+ANGPIX=3.37
+PROBABILITY=0.95
+DEADPIX_FILE="dead_pixel_coordinates.txt"
+DEADPIX_RADIUS=3
+IGNORE_EXISTING="--ignore_existing"
+
 # Check carefully for the right folder, this script can only use 1 GPU
-python subtomo_scripts/fidder_predict_batch.py --idir warp_frameseries/average --mdir warp_frameseries/average/mask/ --angpix 3.37 --p 0.95 --deadpix_file dead_pixel_coordinates.txt --deadpix_radius 3
+python subtomo_scripts/fidder_predict_batch.py \
+    --idir "$IDIR" \
+    --mdir "$MDIR" \
+    --angpix "$ANGPIX" \
+    --p "$PROBABILITY" \
+    --deadpix_file "$DEADPIX_FILE" \
+    --deadpix_radius "$DEADPIX_RADIUS" \
+    $IGNORE_EXISTING

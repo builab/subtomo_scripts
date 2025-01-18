@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Script to use fidder to predict the fiducial mask and also add dead pixel mask to the mask
 # Code from Jerry Gao, dx.doi.org/10.17504/protocols.io.6qpvr8qbblmk/v3, ChatGPT, Huy Bui
+# Separate mask & prediction folder so we can use the mask to correct for even/odd separately
 
 import os
 import mrcfile

@@ -3,9 +3,8 @@
 #SBATCH --partition=cpu
 #SBATCH --error=warp_fidder_erase.err
 #SBATCH --output=warp_fidder_erase.out
-#SBATCH --job-name=warp_fidder_erase
-#SBATCH --mem-per-cpu=10GB
-#SBATCH --gres=gpu:1
+#SBATCH --job-name=warp_fidder
+#SBATCH --mem-per-cpu=5GB
 #SBATCH --cpus-per-task=20
 #SBATCH --nodes=1
 
@@ -15,7 +14,16 @@ module load anaconda
 
 conda activate fiddle
 
-# Check carefully for the right folder
-bash fidder_erase_batch.sh warp_frameseries/average/even/CHE12over__01*0.mrc -keepmask -r 1
-bash fidder_erase_batch.sh warp_frameseries/average/odd/CHE12over__01*0.mrc -keepmask -r 1
+# Define variables
+IDIRS=""warp_frameseries/average/even warp_frameseries/average/odd"  # Space-separated list of directories such as "warp_frameseries/average warp_frameseries/average/even warp_frameseries/average/odd"
+MDIR="warp_frameseries/average/mask/"
+NUM_THREADS=20  # Adjust the number of threads as needed
 
+# Loop through each directory in IDIRS
+for IDIR in $IDIRS; do
+    echo "Processing directory: $IDIR"
+    python subtomo_scripts/fidder_erase_batch.py \
+        --idir "$IDIR" \
+        --mdir "$MDIR" \
+        --j "$NUM_THREADS"
+done
