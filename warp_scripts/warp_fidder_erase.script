@@ -20,6 +20,9 @@ conda activate fidder
 IDIRS="warp_frameseries/average/even warp_frameseries/average/odd"  # Space-separated list of directories such as "warp_frameseries/average warp_frameseries/average/even warp_frameseries/average/odd"
 MDIR="warp_frameseries/average/mask/"
 NUM_THREADS=20  # Adjust the number of threads as needed
+XDIM=5760 # K3 McGill
+YDIM=4092 # K3 McGill
+USE_COORD=true
 NORENAME=false # Default = false, for testing, set to true
 
 # Loop through each directory in IDIRS
@@ -29,6 +32,9 @@ for IDIR in $IDIRS; do
         --idir "$IDIR" \
         --mdir "$MDIR" \
         --j "$NUM_THREADS" \
+        --xdim "$XDIM" \
+        --ydim "$YDIM" \
+        $( [ "$USE_COORD" = true ] && echo "--use_coord" )
         $( [ "$NORENAME" = true ] && echo "--norename" )
 
 done
