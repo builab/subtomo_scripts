@@ -16,4 +16,4 @@ module load anaconda
 conda activate fiddle
 
 # Check carefully for the right folder, this script can only use 1 GPU
-bash fidder_predict_batch.sh warp_frameseries/average/CHE12over__*.mrc -p 0.95 -c dead_pixel_coordinates.txt -cs 3
+python subtomo_scripts/fidder_predict_batch.py --idir test/ --mdir test/mask/ --angpix 3.37 --p 0.95 --deadpix_file dead_pixel_coordinates.txt --deadpix_radius 3
