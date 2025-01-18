@@ -71,7 +71,7 @@ def main():
 	parser.add_argument('--idir', required=True, help="Input directory containing .mrc files.")
 	parser.add_argument('--mdir', required=True, help="Mask directory to store output .mrc files.")
 	parser.add_argument('--noname', action='store_true', help="Don't rename output file to the same as input file.")
-	parser.add_argument('--j', required=True, default=20, help="Number of threads")
+	parser.add_argument('--j', type=int, required=True, default=20, help="Number of threads")
 
 
 	args = parser.parse_args()
