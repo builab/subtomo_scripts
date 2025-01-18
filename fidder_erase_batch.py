@@ -15,7 +15,7 @@ from fidder.predict import predict_fiducial_mask
 from fidder.erase import erase_masked_region
 
 
-def erase_gold(filename, input_dir, mask_dir, norename, use_coord):
+def erase_gold(filename, input_dir, mask_dir, norename, use_coord, xdim, ydim):
 	"""Apply fidder's erase_masked_region function to a single frame and save the result as a new mrc file.
 		
 	Args:
@@ -170,7 +170,7 @@ def main():
 
 	# Process each .mrc file
 	with Pool(args.j) as p:
-		p.starmap(erase_gold, [(mrc_file, args.idir, args.mdir, args.norename, args.use_coord) for mrc_file in mrc_files])
+		p.starmap(erase_gold, [(mrc_file, args.idir, args.mdir, args.norename, args.use_coord, args.xdim, args.ydim) for mrc_file in mrc_files])
 	print('################################ all gold erased for ' + args.idir + ' ################################')
 
 if __name__ == '__main__':
