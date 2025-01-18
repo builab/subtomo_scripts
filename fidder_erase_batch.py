@@ -75,6 +75,8 @@ def main():
 
 
 	args = parser.parse_args()
+	print(args.norename)
+	return
 
 	# Validate input directory
 	if not os.path.isdir(args.idir):
