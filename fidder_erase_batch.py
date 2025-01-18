@@ -41,7 +41,7 @@ def erase_gold(filename, input_dir, mask_dir, norename):
 	print('Write' + output_filename + ' completed')
 	rename_files(mic_path, mrc_output_path, norename)
 	
-def rename_files(file, erased_file, norename=False):
+def rename_files(file, erased_file, norename):
 	"""
 	Renames files based on the provided condition.
 
@@ -75,8 +75,6 @@ def main():
 
 
 	args = parser.parse_args()
-	print(args.norename)
-	return
 
 	# Validate input directory
 	if not os.path.isdir(args.idir):
