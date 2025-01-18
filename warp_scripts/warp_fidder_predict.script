@@ -15,7 +15,7 @@
 # Load WarpTools
 module load anaconda
 
-conda activate fiddle
+conda activate fidder
 
 # Define variables
 IDIR="warp_frameseries/average"
