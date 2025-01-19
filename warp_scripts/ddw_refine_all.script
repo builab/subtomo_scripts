@@ -24,7 +24,7 @@ MODEL_CHECKPOINT="./logs/version_3/checkpoints/epoch/epoch=999.ckpt"  # Path to 
 OUTPUT_DIR="refined_tomograms"  # Base output directory
 SUBTOMO_SIZE=96
 MW_ANGLE=60
-NUM_WORKERS=10
+NUM_WORKERS=8
 
 
 # Loop through all files in the EVEN_DIR
