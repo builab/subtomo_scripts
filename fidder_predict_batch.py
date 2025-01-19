@@ -27,7 +27,6 @@ def write_indices_to_txt(mask, output_file):
 		output_file (str): Path to the output .txt file.
 	"""
 	# Find the indices of pixels with value 1
-	print(mask.shape)
 	y_indices, x_indices = np.where(mask == 1)
 	
 	# Convert to 1-based indexing
@@ -64,8 +63,8 @@ def make_mask(filename, input_dir, mask_dir, angpix, thresh, coords_file, deadpi
 		print(f"Skipping {filename}: mask already exists.")
 		if not os.path.exists(mask_txt_path):
 			print(f"Converting {filename}: mask to {output_txt}.")
-			print(np.array(mrcfile.read(mask_path)).shape)
-			write_indices_to_txt(np.frombuffer(mrcfile.read(mask_path), dtype=np.int8), mask_txt_path)
+			mask = torch.tensor(mrcfile.read(mask_path))
+			write_indices_to_txt(mask.numpy(), mask_txt_path)
 		return
 
 	image = torch.tensor(mrcfile.read(mic_path))
