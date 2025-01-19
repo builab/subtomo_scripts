@@ -1,0 +1,39 @@
+#!/bin/bash
+#SBATCH --ntasks=1 
+#SBATCH --partition=titan
+#SBATCH --error=ddw_refine.err
+#SBATCH --output=ddw_refine.out
+#SBATCH --job-name=ddw
+#SBATCH --mem-per-cpu=32GB
+#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=8
+#SBATCH --nodes=1
+
+
+# Load DDW
+module load anaconda
+conda activate ddw_env
+
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+
+# Define variables
+TOMO0_FILES="even/CHE12over_039_14.00Apx_fidder.mrc"  # Path to tomo0 files
+TOMO1_FILES="odd/CHE12over_039_14.00Apx_fidder.mrc"   # Path to tomo1 files
+MODEL_CHECKPOINT="./logs/version_3/checkpoints/epoch/epoch=999.ckpt" # Path to model checkpoint file
+OUTPUT_DIR="refined_tomograms"                   # Output directory
+SUBTOMO_SIZE=96                                  # Sub-tomogram size
+MW_ANGLE=60                                      # MW angle
+NUM_WORKERS=8                                    # Number of workers
+
+# Command execution
+ddw refine-tomogram \
+    --tomo0-files "$TOMO0_FILES" \
+    --tomo1-files "$TOMO1_FILES" \
+    --model-checkpoint-file "$MODEL_CHECKPOINT" \
+    --output-dir "$OUTPUT_DIR" \
+    --subtomo-size "$SUBTOMO_SIZE" \
+    --mw-angle "$MW_ANGLE" \
+    --num-workers "$NUM_WORKERS"
+
+
+

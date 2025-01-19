@@ -31,7 +31,7 @@ def erase_gold(filename, input_dir, mask_dir, norename, use_txt, xdim, ydim):
 	if use_txt: 
 		mask_path = os.path.join(mask_dir, 	f"{os.path.splitext(filename)[0]}.txt")
 		if not os.path.exists(mask_path):
-			print(f"Error: Mask path '{mask_path}' does not exist. Skip!!")
+			print(f"Error: Mask path '{mask_path}' does not exist. Skip!!", flush=True)
 			return
 		mask = torch.tensor(read_coordinates_to_mask(mask_path, xdim, ydim))
 		# Only for debugging
@@ -42,11 +42,11 @@ def erase_gold(filename, input_dir, mask_dir, norename, use_txt, xdim, ydim):
 	else:
 		mask_path = os.path.join(mask_dir, filename)
 		if not os.path.exists(mask_path):
-			print(f"Error: Mask path '{mask_path}' does not exist. Skip!!")
+			print(f"Error: Mask path '{mask_path}' does not exist. Skip!!", flush=True)
 			return
 		mask = torch.tensor(mrcfile.read(mask_path))
 		
-	print('Read mask {mask_path}')
+	print('Read mask {mask_path}', flush=True)
 
 	image = torch.tensor(mrcfile.read(mic_path))
 
@@ -58,7 +58,7 @@ def erase_gold(filename, input_dir, mask_dir, norename, use_txt, xdim, ydim):
 	with mrcfile.new(mrc_output_path, overwrite=True) as mrc:
 		mrc.set_data(erased_image.numpy())
 
-	print('Write' + output_filename + ' completed')
+	print('Write' + output_filename + ' completed', flush=True)
 	rename_files(mic_path, mrc_output_path, norename)
 
 def erase_gold_old(filename, input_dir, mask_dir, norename):
@@ -134,13 +134,13 @@ def rename_files(file, erased_file, norename):
 		try:
 			# Rename the original file to the backup file
 			shutil.move(file, backup_file)
-			print(f"Moved {file} to {backup_file}")
+			print(f"Moved {file} to {backup_file}", flush=True)
 			
 			# Rename the erased file to the original file name
 			shutil.move(erased_file, file)
-			print(f"Moved {erased_file} to {file}")
+			print(f"Moved {erased_file} to {file}", flush=True)
 		except Exception as e:
-			print(f"Error during file renaming: {e}")
+			print(f"Error during file renaming: {e}", flush=True)
  
 def main():
 	parser = argparse.ArgumentParser(description="Process MRC files in a directory with specified parameters.")
@@ -151,8 +151,6 @@ def main():
 	parser.add_argument('--xdim', type=int, default=5760, help="Micrograph X dimension (default 5760 for K3)")
 	parser.add_argument('--ydim', type=int, default=4092, help="Micrograph Y dimension (default 4092 for K3)")
 	parser.add_argument('--use_txt', action='store_true', help="Use coordinate txt file, not mrc.")
-
-
 
 	args = parser.parse_args()
 

@@ -1,0 +1,26 @@
+#!/bin/bash
+#SBATCH --ntasks=1 
+#SBATCH --partition=ampere
+#SBATCH --error=ddw_training.err
+#SBATCH --output=ddw_training.out
+#SBATCH --job-name=ddw
+#SBATCH --mem-per-cpu=32GB
+#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=4
+#SBATCH --nodes=1
+
+# For training, running on Ampere is very important with big memory
+# Load DDW
+module load anaconda
+conda activate ddw_env
+
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+
+# Define variables
+# Edit the config.yaml, it is probaby better than running through commandline argument
+
+# Run training
+ddw prepare-data --config ./config.yaml
+ddw fit-model --config ./config.yaml
+
+

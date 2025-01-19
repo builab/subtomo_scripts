@@ -62,6 +62,7 @@ def make_mask(filename, input_dir, mask_dir, angpix, thresh, coords_file, deadpi
 	if ignore_existing and os.path.exists(mask_path):
 		print(f"Skipping {filename}: mask already exists.")
 		if not os.path.exists(mask_txt_path):
+			# This part is only to convert old data. So it is a bit slow
 			print(f"Converting {filename}: mask to {output_txt}.")
 			mask = torch.tensor(mrcfile.read(mask_path))
 			write_indices_to_txt(mask.numpy(), mask_txt_path)

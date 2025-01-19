@@ -24,7 +24,7 @@ ANGPIX=3.37
 PROBABILITY=0.95
 DEADPIX_FILE="dead_pixel_coordinates.txt"
 DEADPIX_RADIUS=3
-IGNORE_EXISTING="--ignore_existing" # Ignore previously predicted file, set to empty for overwriting
+ignore_existing=true # Ignore previously predicted file, set to false for overwriting
 USE_TXT=true
 
 
@@ -35,7 +35,8 @@ python subtomo_scripts/fidder_predict_batch.py \
     --mdir "$MDIR" \
     --angpix "$ANGPIX" \
     --p "$PROBABILITY" \
-    --deadpix_file "$DEADPIX_FILE" \
-    --deadpix_radius "$DEADPIX_RADIUS" \
     $( [ "$USE_TXT" = true ] && echo "--use_txt \\" )
-    $IGNORE_EXISTING
+    $( [ "$ignore_existing" = true ] && echo "--ignore_existing \\" )
+    $( [ -n "$DEADPIX_FILE" ] && echo "--deadpix_file $DEADPIX_FILE \\" )
+    --deadpix_radius "$DEADPIX_RADIUS" \
+    

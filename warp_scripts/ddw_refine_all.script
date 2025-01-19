@@ -1,0 +1,62 @@
+#!/bin/bash
+#SBATCH --ntasks=1 
+#SBATCH --partition=titan
+#SBATCH --error=ddw_refine.err
+#SBATCH --output=ddw_refine.out
+#SBATCH --job-name=ddw
+#SBATCH --mem-per-cpu=32GB
+#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=8
+#SBATCH --nodes=1
+
+
+# Load DDW
+module load anaconda
+conda activate ddw_env
+
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+
+# Customizable variables
+EVEN_DIR="even"  # Directory containing 'even' files
+ODD_DIR="odd"    # Directory containing 'odd' files
+MODEL_CHECKPOINT="./logs/version_3/checkpoints/epoch/epoch=999.ckpt"  # Path to model checkpoint file
+OUTPUT_DIR="refined_tomograms"  # Base output directory
+SUBTOMO_SIZE=96
+MW_ANGLE=60
+NUM_WORKERS=10
+
+
+# Loop through all files in the EVEN_DIR
+for even_file in "$EVEN_DIR"/*.mrc; do
+    # Extract the filename without path and extension
+    base_name=$(basename "$even_file" .mrc)
+
+    # Match the corresponding file in ODD_DIR
+    odd_file="$ODD_DIR/${base_name}.mrc"
+    
+    if [ -f "$odd_file" ]; then
+        # Define the expected output file
+        output_file="${OUTPUT_DIR}/${base_name}+${base_name}_refined.mrc"
+
+        # Check if the output file already exists
+        if [ -f "$output_file" ]; then
+            echo "Skipping: Output file already exists for $even_file and $odd_file"
+            continue
+        fi
+
+        # Run the program
+        echo "Processing: $even_file and $odd_file"
+        ddw refine-tomogram \
+            --tomo0-files "$even_file" \
+            --tomo1-files "$odd_file" \
+            --model-checkpoint-file "$MODEL_CHECKPOINT" \
+            --output-dir "$OUTPUT_DIR" \
+            --subtomo-size "$SUBTOMO_SIZE" \
+            --mw-angle "$MW_ANGLE" \
+            --num-workers "$NUM_WORKERS"
+
+    else
+        echo "Warning: No matching odd file for $even_file"
+    fi
+done
+
