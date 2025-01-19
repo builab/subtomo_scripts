@@ -63,9 +63,8 @@ def make_mask(filename, input_dir, mask_dir, angpix, thresh, coords_file, deadpi
 		print(f"Skipping {filename}: mask already exists.")
 		if not os.path.exists(mask_txt_path):
 			print(f"Converting {filename}: mask to {output_txt}.")
-			print(type(np.array(mrcfile.read(mask_path).data)))
-			print(mrcfile.read(mask_path).data.shape)
-			write_indices_to_txt(np.frombuffer(mrcfile.read(mask_path).data, dtype=np.int8), mask_txt_path)
+			print(np.array(mrcfile.read(mask_path)).shape)
+			write_indices_to_txt(np.frombuffer(mrcfile.read(mask_path), dtype=np.int8), mask_txt_path)
 		return
 
 	image = torch.tensor(mrcfile.read(mic_path))
