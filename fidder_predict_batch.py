@@ -63,6 +63,8 @@ def make_mask(filename, input_dir, mask_dir, angpix, thresh, coords_file, deadpi
 		print(f"Skipping {filename}: mask already exists.")
 		if not os.path.exists(mask_txt_path):
 			print(f"Converting {filename}: mask to {output_txt}.")
+			print(type(mrcfile.read(mask_path).data))
+			print(mrcfile.read(mask_path).data.shape)
 			write_indices_to_txt(mrcfile.read(mask_path).data, mask_txt_path)
 		return
 
@@ -86,8 +88,6 @@ def make_mask(filename, input_dir, mask_dir, angpix, thresh, coords_file, deadpi
 				x_coord = float(parts[0])
 				y_coord = float(parts[1])
 				draw_circle(mask_uint8, x_coord, y_coord, deadpixel_radius)
-
-
 
 	# Write mask to txt file
 	write_indices_to_txt(mask_uint8.numpy(), mask_txt_path)
