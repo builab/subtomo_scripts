@@ -27,6 +27,7 @@ def write_indices_to_txt(mask, output_file):
 		output_file (str): Path to the output .txt file.
 	"""
 	# Find the indices of pixels with value 1
+	print(mask.shape)
 	y_indices, x_indices = np.where(mask == 1)
 	
 	# Convert to 1-based indexing
