@@ -7,6 +7,7 @@
 #SBATCH --mem-per-cpu=5GB
 #SBATCH --cpus-per-task=20
 #SBATCH --nodes=1
+#SBATCH --time=1-00:00:00
 
 # On paris
 # export LD_LIBRARY_PATH=/storage/software/anaconda3/envs/subtomo/lib/python3.10/site-packages/nvidia/nvjitlink/lib:$LD_LIBRARY_PATH

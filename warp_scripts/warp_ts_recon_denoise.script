@@ -8,12 +8,14 @@
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=1
 #SBATCH --nodes=1
+#SBATCH --time=1-00:00:00
 
 # Load WarpTools
 module load warpem
 
 # Set output to mode 32 not 16 bit float for old IMOD and Dynamo compatibility
-export WARP_FORCE_MRC_FLOAT32=1
+# For denoising, using Float16 save space
+# export WARP_FORCE_MRC_FLOAT32=1
 
 # Define variables
 settings="warp_tiltseries.settings"

@@ -46,7 +46,7 @@ def erase_gold(filename, input_dir, mask_dir, norename, use_txt, xdim, ydim):
 			return
 		mask = torch.tensor(mrcfile.read(mask_path))
 		
-	print('Read mask {mask_path}', flush=True)
+	print(f"Read mask {mask_path}", flush=True)
 
 	image = torch.tensor(mrcfile.read(mic_path))
 
