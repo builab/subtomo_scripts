@@ -2,6 +2,7 @@
 # Script to use fidder to predict the fiducial mask and also add dead pixel mask to the mask
 # Code from Jerry Gao, dx.doi.org/10.17504/protocols.io.6qpvr8qbblmk/v3, ChatGPT, Huy Bui
 # Separate mask & prediction folder so we can use the mask to correct for even/odd separately
+# In the future, we should not write the mrc mask file at all
 
 import os
 import mrcfile
@@ -55,9 +56,14 @@ def make_mask(filename, input_dir, mask_dir, angpix, thresh, coords_file, deadpi
 	"""
 	mic_path = os.path.join(input_dir, filename)
 	mask_path = os.path.join(mask_dir, filename)
+	output_txt = f"{os.path.splitext(filename)[0]}.txt"
+	mask_txt_path = os.path.join(mask_dir, output_txt)
 
 	if ignore_existing and os.path.exists(mask_path):
 		print(f"Skipping {filename}: mask already exists.")
+		if not os.path.exists(mask_txt_path):
+			print(f"Converting {filename}: mask to {output_txt}.")
+			write_indices_to_txt(mrcfile.read(mask_path).data, mask_txt_path)
 		return
 
 	image = torch.tensor(mrcfile.read(mic_path))
@@ -84,8 +90,7 @@ def make_mask(filename, input_dir, mask_dir, angpix, thresh, coords_file, deadpi
 
 
 	# Write mask to txt file
-	output_txt = f"{os.path.splitext(filename)[0]}.txt"
-	write_indices_to_txt(mask_uint8.numpy(), os.path.join(mask_dir, output_txt))
+	write_indices_to_txt(mask_uint8.numpy(), mask_txt_path)
 
 	if not use_txt:
 		with mrcfile.new(mask_path, overwrite=True) as mrc:

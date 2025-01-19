@@ -24,7 +24,7 @@ ANGPIX=3.37
 PROBABILITY=0.95
 DEADPIX_FILE="dead_pixel_coordinates.txt"
 DEADPIX_RADIUS=3
-IGNORE_EXISTING="--ignore_existing" # Ignore previously predicted file
+IGNORE_EXISTING="--ignore_existing" # Ignore previously predicted file, set to empty for overwriting
 USE_TXT=true
 
 
