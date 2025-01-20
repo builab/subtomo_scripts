@@ -10,6 +10,7 @@
 #SBATCH --nodes=1
 #SBATCH --time=1-00:00:00
 
+# Need to edit the --gpu 0, might have to wait when the cluster is not busy
 
 # Load DDW
 module load anaconda
@@ -18,8 +19,8 @@ conda activate ddw_env
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
 # Customizable variables
-EVEN_DIR="even"  # Directory containing 'even' files
-ODD_DIR="odd"    # Directory containing 'odd' files
+EVEN_DIR="../warp_tiltseries/reconstruction/even"  # Directory containing 'even' files
+ODD_DIR="../warp_tiltseries/reconstruction/odd"    # Directory containing 'odd' files
 MODEL_CHECKPOINT="./logs/version_3/checkpoints/epoch/epoch=999.ckpt"  # Path to model checkpoint file
 OUTPUT_DIR="refined_tomograms"  # Base output directory
 SUBTOMO_SIZE=96
@@ -55,6 +56,7 @@ for even_file in "$EVEN_DIR"/*.mrc; do
             --subtomo-size "$SUBTOMO_SIZE" \
             --mw-angle "$MW_ANGLE" \
             --num-workers "$NUM_WORKERS"
+            --gpu 0
 
     else
         echo "Warning: No matching odd file for $even_file"

@@ -18,8 +18,8 @@ conda activate ddw_env
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
 # Define variables
-TOMO0_FILES="even/CHE12over_039_14.00Apx_fidder.mrc"  # Path to tomo0 files
-TOMO1_FILES="odd/CHE12over_039_14.00Apx_fidder.mrc"   # Path to tomo1 files
+TOMO0_FILES="../warp_tiltseries/reconstruction/even/CHE12over_039_14.00Apx.mrc"  # Path to tomo0 files
+TOMO1_FILES="../warp_tiltseries/reconstruction/odd/CHE12over_039_14.00Apx.mrc"   # Path to tomo1 files
 MODEL_CHECKPOINT="./logs/version_3/checkpoints/epoch/epoch=999.ckpt" # Path to model checkpoint file
 OUTPUT_DIR="refined_tomograms"                   # Output directory
 SUBTOMO_SIZE=96                                  # Sub-tomogram size
@@ -34,7 +34,8 @@ ddw refine-tomogram \
     --output-dir "$OUTPUT_DIR" \
     --subtomo-size "$SUBTOMO_SIZE" \
     --mw-angle "$MW_ANGLE" \
-    --num-workers "$NUM_WORKERS"
+    --num-workers "$NUM_WORKERS" \
+    --gpu 0
 
 
 
