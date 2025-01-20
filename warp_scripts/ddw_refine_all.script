@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --ntasks=1 
 #SBATCH --partition=titan
-#SBATCH --error=ddw_refine.err
-#SBATCH --output=ddw_refine.out
+#SBATCH --error=ddw_refine_all.err
+#SBATCH --output=ddw_refine_all.out
 #SBATCH --job-name=ddw
 #SBATCH --mem-per-cpu=32GB
 #SBATCH --gres=gpu:1
