@@ -15,7 +15,7 @@ from fidder.predict import predict_fiducial_mask
 from fidder.erase import erase_masked_region
 
 
-def erase_gold(filename, input_dir, mask_dir, norename, use_txt, xdim, ydim):
+def erase_gold(filename, input_dir, mask_dir, norename, use_txt, xdim, ydim, ignore_existing):
 	"""Apply fidder's erase_masked_region function to a single frame and save the result as a new mrc file.
 		
 	Args:
