@@ -36,8 +36,8 @@ python subtomo_scripts/fidder_predict_batch.py \
     --mdir "$MDIR" \
     --angpix "$ANGPIX" \
     --p "$PROBABILITY" \
-    $( [ "$USE_TXT" = true ] && echo "--use_txt \\" )
-    $( [ "$ignore_existing" = true ] && echo "--ignore_existing \\" )
-    $( [ -n "$DEADPIX_FILE" ] && echo "--deadpix_file $DEADPIX_FILE \\" )
     --deadpix_radius "$DEADPIX_RADIUS" \
+    $( [ "$USE_TXT" = true ] && echo "--use_txt" ) \
+    $( [ "$ignore_existing" = true ] && echo "--ignore_existing" ) \
+    $( [ -n "$DEADPIX_FILE" ] && echo "--deadpix_file $DEADPIX_FILE" )
     

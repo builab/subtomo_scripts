@@ -35,7 +35,7 @@ for IDIR in $IDIRS; do
         --j "$NUM_THREADS" \
         --xdim "$XDIM" \
         --ydim "$YDIM" \
-        $( [ "$USE_TXT" = true ] && echo "--use_txt \\" )
+        $( [ "$USE_TXT" = true ] && echo "--use_txt" ) \
         $( [ "$NORENAME" = true ] && echo "--norename" )
 
 done

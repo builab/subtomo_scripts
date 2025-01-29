@@ -35,5 +35,5 @@ WarpTools fs_motion_and_ctf \
   --c_defocus_max "$c_defocus_max" \
   --c_use_sum \
   --out_averages \
-  $( [ "$out_average_halves" = true ] && echo "--out_average_halves \\" )
+  $( [ "$out_average_halves" = true ] && echo "--out_average_halves" ) \
   $( [ -n "$input_data" ] && echo "--input_data $input_data" )
