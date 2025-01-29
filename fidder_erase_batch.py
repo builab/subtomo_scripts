@@ -29,7 +29,7 @@ def erase_gold(filename, input_dir, mask_dir, norename, use_txt, xdim, ydim, ign
 	
 	# Check if mic_path~ exist
 	if ignore_existing and os.path.exists(mic_path + "~"):
-		print(f"Skipping {filename}: as {filename}~ already exists.")
+		print(f"Skipping {filename}: as {filename}~ already exists.", flush=True)
 		return
 
 	# Check for using txt file instead of mrc file
