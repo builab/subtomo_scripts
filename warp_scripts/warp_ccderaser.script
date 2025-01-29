@@ -1,0 +1,67 @@
+#!/bin/bash
+#SBATCH --ntasks=1 
+#SBATCH --partition=cpu
+#SBATCH --error=warp_cceraser.err
+#SBATCH --output=warp_ccderaser.out
+#SBATCH --job-name=warp_ccderaser
+#SBATCH --mem-per-cpu=5GB
+#SBATCH --cpus-per-task=20
+#SBATCH --nodes=1
+#SBATCH --time=1-00:00:00
+
+# This script uses ccderaser to eliminate hot pixel, X-ray
+# On paris
+# NOT YET TESTED
+
+# Load IMOD
+module load imod
+
+
+# Default values
+INPUT_DIR="."
+MAX_JOBS=1
+HALFFLOAT=2
+PEAK_CRITERION=8
+DIFF_CRITERION=6.0
+BIG_DIFF_CRITERION=19.0
+GIANT_CRITERION=12.0
+EXTRA_LARGE_RADIUS=8.0
+EDGE_EXCLUSION_WIDTH=4
+
+
+# Find all .mrc files in the input directory
+input_files=("$INPUT_DIR"/*.mrc)
+
+# Process files with limited parallel jobs
+for file in "${input_files[@]}"; do
+  [ -e "$file" ] || continue  # Skip if no .mrc files found
+
+  # Throttle if MAX_JOBS is reached
+  while [[ $(jobs -r -p | wc -l) -ge $MAX_JOBS ]]; do
+    wait -n
+  done
+
+  # Run ccderaser in the background
+  (
+    BASENAME="$(basename -- "$file" .mrc)"
+    OUTPUT_FILE="${BASENAME}_erased.mrc"
+
+    ccderaser -input "$file" \
+              -output "$OUTPUT_FILE" \
+              -halffloat "$HALFFLOAT" \
+              -FindPeaks \
+              -PeakCriterion "$PEAK_CRITERION" \
+              -DiffCriterion "$DIFF_CRITERION" \
+              -BigDiffCriterion "$BIG_DIFF_CRITERION" \
+              -GiantCriterion "$GIANT_CRITERION" \
+              -ExtraLargeRadius "$EXTRA_LARGE_RADIUS" \
+              -EdgeExclusionWidth "$EDGE_EXCLUSION_WIDTH"
+
+    # Rename original and processed files
+    mv "$file" "${BASENAME}~"
+    mv "$OUTPUT_FILE" "$file"
+  ) &
+done
+
+# Wait for all remaining background jobs to finish
+wait
