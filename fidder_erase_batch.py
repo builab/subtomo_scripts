@@ -27,6 +27,11 @@ def erase_gold(filename, input_dir, mask_dir, norename, use_txt, xdim, ydim):
 	WRITEMASK = False # Set True for debugging, set False for operation
 	mic_path = os.path.join(input_dir, filename)
 	
+	# Check if mic_path~ exist
+	if ignore_existing and os.path.exists(mic_path + "~"):
+		print(f"Skipping {filename}: as {filename}~ already exists.")
+		return
+
 	# Check for using txt file instead of mrc file
 	if use_txt: 
 		mask_path = os.path.join(mask_dir, 	f"{os.path.splitext(filename)[0]}.txt")
@@ -50,7 +55,6 @@ def erase_gold(filename, input_dir, mask_dir, norename, use_txt, xdim, ydim):
 
 	image = torch.tensor(mrcfile.read(mic_path))
 
-
 	erased_image = erase_masked_region(image=image, mask=mask)
 
 	output_filename = f"{os.path.splitext(filename)[0]}_erased.mrc"
@@ -59,33 +63,6 @@ def erase_gold(filename, input_dir, mask_dir, norename, use_txt, xdim, ydim):
 		mrc.set_data(erased_image.numpy())
 
 	print('Write' + output_filename + ' completed', flush=True)
-	rename_files(mic_path, mrc_output_path, norename)
-
-def erase_gold_old(filename, input_dir, mask_dir, norename):
-	"""Apply fidder's erase_masked_region function to a single frame and save the result as a new mrc file.
-		
-	Args:
-		filename (str): The name of the micrograph to process.
-		input_dir (str) :
-		mask_dir (str) : 
-	"""
-	mic_path = os.path.join(input_dir, filename)
-	mask_path = os.path.join(mask_dir, filename)
-
-	image = torch.tensor(mrcfile.read(mic_path))
-	if not os.path.exists(mask_path):
-		print(f"Error: Mask path '{mask_path}' does not exist. Skip!!")
-		return
-	mask = torch.tensor(mrcfile.read(mask_path))
-
-	erased_image = erase_masked_region(image=image, mask=mask)
-
-	output_filename = f"{os.path.splitext(filename)[0]}_erased.mrc"
-	mrc_output_path = os.path.join(input_dir, output_filename)
-	with mrcfile.new(mrc_output_path, overwrite=True) as mrc:
-		mrc.set_data(erased_image.numpy())
-
-	print('Write' + output_filename + ' completed')
 	rename_files(mic_path, mrc_output_path, norename)
 	
 def read_coordinates_to_mask(coord_file, xdim, ydim):
@@ -151,6 +128,8 @@ def main():
 	parser.add_argument('--xdim', type=int, default=5760, help="Micrograph X dimension (default 5760 for K3)")
 	parser.add_argument('--ydim', type=int, default=4092, help="Micrograph Y dimension (default 4092 for K3)")
 	parser.add_argument('--use_txt', action='store_true', help="Use coordinate txt file, not mrc.")
+	parser.add_argument('--ignore_existing', action='store_true', help="Skip files that already have filename~ in the same directory.")
+	
 
 	args = parser.parse_args()
 
@@ -170,7 +149,7 @@ def main():
 
 	# Process each .mrc file
 	with Pool(args.j) as p:
-		p.starmap(erase_gold, [(mrc_file, args.idir, args.mdir, args.norename, args.use_txt, args.xdim, args.ydim) for mrc_file in mrc_files])
+		p.starmap(erase_gold, [(mrc_file, args.idir, args.mdir, args.norename, args.use_txt, args.xdim, args.ydim, args.ignore_existing) for mrc_file in mrc_files])
 	print('################################ all gold erased for ' + args.idir + ' ################################')
 
 if __name__ == '__main__':
