@@ -167,9 +167,9 @@ def sanitise_warp_tomo_name(micrograph_name: str) -> str:
 
 if __name__=='__main__':
    	# get name of input starfile, output starfile, output stack file
-	print('Script to convert from Dynamo to Relion 4')
+	print('Script to convert from Dynamo to Relion 5 Warp format')
 	
-	parser = argparse.ArgumentParser(description='Convert tbl file to Relion 4.0 input file')
+	parser = argparse.ArgumentParser(description='Convert tbl file to Relion 5.0 input file')
 	parser.add_argument('--tbl', help='Input table file',required=True)
 	parser.add_argument('--tomodoc', help='Input tomo doc file',required=True)
 	parser.add_argument('--ostar', help='Output star file',required=True)
