@@ -55,7 +55,7 @@ for even_file in "$EVEN_DIR"/*.mrc; do
             --output-dir "$OUTPUT_DIR" \
             --subtomo-size "$SUBTOMO_SIZE" \
             --mw-angle "$MW_ANGLE" \
-            --num-workers "$NUM_WORKERS"
+            --num-workers "$NUM_WORKERS" \
             --gpu 0
 
     else
