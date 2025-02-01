@@ -161,7 +161,7 @@ def sanitise_warp_tomo_name(micrograph_name: str) -> str:
 	"""
 	Replaces tomogram name from Warp reconstructions with corresponding name file if appropriate
 	"""
-	micro = re.sub(r"_\d\.\d+Apx.mrc", ".tomostar", micrograph_name)
+	micro = re.sub(r"_\d+\.\d+Apx.mrc", ".tomostar", micrograph_name)
 	return re.sub(r"^.*\/", "", micro)
 	
 
