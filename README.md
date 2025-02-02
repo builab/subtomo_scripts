@@ -11,11 +11,11 @@ pip install eulerangles
 
 pip install numpy
 
-# Panda 2.0 doesn't work because of append function
-
-pip install pandas==1.2
+pip install pandas
 
 pip install dynamotable
+
+pip install starfile
 
 
 ## Convert Axoneme Align Project To Input Relion 4 Star File
