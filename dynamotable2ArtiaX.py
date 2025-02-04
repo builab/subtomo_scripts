@@ -7,14 +7,29 @@
 import numpy as np
 import sys, os
 
+def preprocess_file(input_file):
+    """Preprocess the file to replace 'i' with 'j' for complex numbers."""
+    with open(input_file, 'r') as f:
+        lines = f.readlines()
+    
+    processed_lines = [line.replace('i', 'j') for line in lines]
+    
+    temp_file = input_file + ".tmp"
+    with open(temp_file, 'w') as f:
+        f.writelines(processed_lines)
+    
+    return temp_file
+
 def modify_table(input_file, output_file):
+    # Preprocess the file to handle complex numbers
+    temp_file = preprocess_file(input_file)    
+
     # Load the file as a NumPy array (space-separated values)
-    data = np.loadtxt(input_file)
+    data = np.loadtxt(temp_file, dtype=complex)
+    data = np.real(data)
     
     # Ensure column indices are within range
     num_columns = data.shape[1]
-    if num_columns < 9:
-        raise ValueError("Input file must have at least 9 columns.")
     
     # Swap columns 7 and 9 (convert to 0-based index)
     data[:, [6, 8]] = data[:, [8, 6]]
@@ -25,6 +40,9 @@ def modify_table(input_file, output_file):
     
     # Save the modified data back to the output file
     np.savetxt(output_file, data, fmt='%.3f', delimiter=' ')
+
+    # Remove the temporary file
+    os.remove(temp_file)
     
 if __name__ == "__main__":
     if len(sys.argv) != 2:
