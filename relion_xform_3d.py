@@ -78,7 +78,7 @@ def cli(
     print(rotation)
 
     # recenter particles, we don't care about orientations so apply identity rotation
-    new_xyz, _ = shift_then_rotate_particles(
+    new_xyz, updated_particle_orientations = shift_then_rotate_particles(
         particle_positions=xyz,
         particle_orientations=rotation_matrices,
         shift=np.asarray(shift),
@@ -90,9 +90,17 @@ def cli(
     new_shifts = new_xyz - df[['rlnCoordinateX', 'rlnCoordinateY', 'rlnCoordinateZ']].to_numpy()
     new_shifts = -1 * new_shifts * pixel_spacing
     console.log("calculated new shifts from shifted particle positions")
-
+    
     star['particles'][['rlnOriginXAngst', 'rlnOriginYAngst', 'rlnOriginZAngst']] = new_shifts
     console.log("updated shift values in 'rlnOriginXAngst', 'rlnOriginYAngst', 'rlnOriginZAngst'")
+    
+    # express new orientation in star file
+    new_euler_angles = R.from_matrix(updated_particle_orientations).as_euler('ZYZ', degrees='True')
+    console.log("calculated new eulers")
+    
+    star['particles'][['rlnAngleRot', 'rlnAngleTilt', 'rlnAnglePsi']] = new_euler_angles
+    console.log("updated rotational angle values in 'rlnAngleRot', 'rlnAngleTilt', 'rlnAnglePsi'")
+
 
     # write output
     with console.status(f"writing output STAR file {output_star_file}", spinner="arc"):
@@ -118,9 +126,9 @@ def shift_then_rotate_particles(
     updated_particle_positions = particle_positions + local_shifts
 
     # transform the reference rotation to find the new particle orientation
-    print(particle_orientations)
+    #print(particle_orientations)
     particle_orientations = particle_orientations @ rotation
-    print(particle_orientations)
+    #print(particle_orientations)
     return updated_particle_positions, particle_orientations
 
 
