@@ -12,40 +12,40 @@ console = rich.console.Console()
 
 def modify_star(input_star_file, output_star_file):
     star = starfile.read(input_star_file, always_dict=True)
-    console.log(f"{input_star_file} read")
+    print(f"{input_star_file} read")
     
     if not all(key in star for key in ('particles', 'optics')):
-        console.log("expected RELION 3.1+ style STAR file containing particles and optics blocks", style="bold red")
+        print("expected RELION 3.1+ style STAR file containing particles and optics blocks")
 
     df = star['particles'].merge(star['optics'], on='rlnOpticsGroup')
-    console.log("optics table merged")
-    console.log(f"{len(df)} particles found")
+    print("optics table merged")
+    print(f"{len(df)} particles found")
     
     xyz = df[['rlnCoordinateX', 'rlnCoordinateY', 'rlnCoordinateZ']].to_numpy()
-    console.log("got binned origin in pixel from 'rlnCoordinateX', 'rlnCoordinateY', 'rlnCoordinateZ'")
+    print("got binned origin in pixel from 'rlnCoordinateX', 'rlnCoordinateY', 'rlnCoordinateZ'")
     
     # Instead, we can also read the bin value
     pixel_spacing = df['rlnImagePixelSize'].to_numpy()
-    console.log("got pixel spacing from 'rlnImagePixelSize'")
+    print("got pixel spacing from 'rlnImagePixelSize'")
     
     tomopixel_spacing = df['rlnTomoTiltSeriesPixelSize'].to_numpy()
-    console.log("got pixel spacing from 'rlnTomoTiltseriesImagePixelSize'")
+    print("got pixel spacing from 'rlnTomoTiltseriesImagePixelSize'")
     
     new_origins = xyz / pixel_spacing * tomopixel_spacing
-    console.log('calculated particle position in unbinned tomogram')
+    print('calculated particle position in unbinned tomogram')
     
     star['particles'][['rlnCoordinateX', 'rlnCoordinateY', 'rlnCoordinateZ']] = new_origins
-    console.log("updated shift values in 'rlnCoordinateX','rlnCoordinateY', 'rlnCoordinateZ'")
+    print("updated shift values in 'rlnCoordinateX','rlnCoordinateY', 'rlnCoordinateZ'")
     
     # Remove .tomostar
     star['particles']['rlnTomoName'].str.replace('.tomostar', '', regex=False)
-    console.log("Remove .tomostar in 'rlnTomoName'")
+    print("Remove .tomostar in 'rlnTomoName'")
 
   
     # write output
     with console.status(f"writing output STAR file {output_star_file}", spinner="arc"):
         starfile.write(star, output_star_file)
-    console.log(f"Output with ArtiaX compatible written to {output_star_file}")
+    print(f"Output with ArtiaX compatible written to {output_star_file}")
     
 if __name__ == "__main__":
     if len(sys.argv) != 2:
