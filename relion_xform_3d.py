@@ -75,6 +75,7 @@ def cli(
     
     # Get in MT rotation of 25.7866
     rotation = R.from_euler(angles=[25.7866, 0, 0], seq='ZYZ', degrees=True).as_matrix()
+    print(rotation)
 
     # recenter particles, we don't care about orientations so apply identity rotation
     new_xyz, _ = shift_then_rotate_particles(
