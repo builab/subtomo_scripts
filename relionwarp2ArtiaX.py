@@ -25,9 +25,11 @@ def modify_star(input_star_file, output_star_file):
     
     # Instead, we can also read the bin value
     pixel_spacing = df['rlnImagePixelSize'].to_numpy()
+    pixel_spacing = pixel_spacing[:, np.newaxis]  # Shape: (b, 1)
     print("got pixel spacing from 'rlnImagePixelSize'")
     
     tomopixel_spacing = df['rlnTomoTiltSeriesPixelSize'].to_numpy()
+    tomopixel_spacing = tomopixel_spacing[:, np.newaxis]  # Shape: (b, 1)
     print("got pixel spacing from 'rlnTomoTiltseriesImagePixelSize'")
     
     new_origins = xyz / pixel_spacing * tomopixel_spacing
