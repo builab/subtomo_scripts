@@ -32,7 +32,7 @@ def modify_star(input_star_file, output_star_file):
     tomopixel_spacing = tomopixel_spacing[:, np.newaxis]  # Shape: (b, 1)
     print("got pixel spacing from 'rlnTomoTiltseriesImagePixelSize'")
     
-    new_origins = xyz / pixel_spacing * tomopixel_spacing
+    new_origins = xyz * pixel_spacing / tomopixel_spacing
     print('calculated particle position in unbinned tomogram')
     
     star['particles'][['rlnCoordinateX', 'rlnCoordinateY', 'rlnCoordinateZ']] = new_origins
@@ -42,7 +42,6 @@ def modify_star(input_star_file, output_star_file):
     star['particles']['rlnTomoName'].str.replace('.tomostar', '', regex=False)
     print("Remove .tomostar in 'rlnTomoName'")
 
-  
     # write output
     starfile.write(star, output_star_file)
     print(f"Output with ArtiaX compatible written to {output_star_file}")
