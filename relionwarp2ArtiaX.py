@@ -1,0 +1,60 @@
+#!/usr/bin/python
+# Script to generate star file for the visualization in ArtiaX from Relion WarpTool 2.0.0
+# Multiply origin with pixelSize
+# Eliminate .tomostar from rlnTomoName
+# HB, McGill, 2025. Style coming from recenter_3d.py by Alister Burt
+
+import numpy as np
+import sys, os
+import starfile
+
+console = rich.console.Console()
+
+def modify_star(input_star_file, output_star_file):
+	star = starfile.read(input_star_file, always_dict=True)
+    console.log(f"{input_star_file} read")
+	
+    if not all(key in star for key in ('particles', 'optics')):
+        console.log("expected RELION 3.1+ style STAR file containing particles and optics blocks", style="bold red")
+
+    df = star['particles'].merge(star['optics'], on='rlnOpticsGroup')
+    console.log("optics table merged")
+    console.log(f"{len(df)} particles found")
+    
+    xyz = df[['rlnCoordinateX', 'rlnCoordinateY', 'rlnCoordinateZ']].to_numpy()
+    console.log("got binned origin in pixel from 'rlnCoordinateX', 'rlnCoordinateY', 'rlnCoordinateZ'")
+    
+    # Instead, we can also read the bin value
+    pixel_spacing = df['rlnImagePixelSize'].to_numpy()
+    console.log("got pixel spacing from 'rlnImagePixelSize'")
+    
+    tomopixel_spacing = df['rlnTomoTiltSeriesPixelSize'].to_numpy()
+    console.log("got pixel spacing from 'rlnTomoTiltseriesImagePixelSize'")
+    
+    new_origins = xyz / pixel_spacing * tomopixel_spacing
+    console.log('calculated particle position in unbinned tomogram')
+    
+    star['particles'][['rlnCoordinateX', 'rlnCoordinateY', 'rlnCoordinateZ']] = new_origins
+    console.log("updated shift values in 'rlnCoordinateX','rlnCoordinateY', 'rlnCoordinateZ'")
+    
+    # Remove .tomostar
+    star['particles']['rlnTomoName'].str.replace('.tomostar', '', regex=False)
+    console.log("Remove .tomostar in 'rlnTomoName'")
+
+  
+    # write output
+    with console.status(f"writing output STAR file {output_star_file}", spinner="arc"):
+        starfile.write(star, output_star_file)
+    console.log(f"Output with ArtiaX compatible written to {output_star_file}")
+    
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: python relionwarp2ArtiaX.py input_star_file")
+        sys.exit(1)
+    
+    input_star_file = sys.argv[1]
+    base_name, ext = os.path.splitext(input_star_file)
+    output_star_file = f"{base_name}_artiaX{ext}"
+    
+    modify_star(input_star_file, output_star_file)
+
