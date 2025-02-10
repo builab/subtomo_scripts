@@ -81,7 +81,7 @@ def cli(
         particle_positions=xyz,
         particle_orientations=rotation_matrices,
         shift=np.asarray(shift),
-        rotation=np.eye(3),
+        rotation=rotation,
     )
     console.log('calculated shifted particle positions')
 
