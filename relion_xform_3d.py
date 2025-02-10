@@ -118,8 +118,9 @@ def shift_then_rotate_particles(
     updated_particle_positions = particle_positions + local_shifts
 
     # transform the reference rotation to find the new particle orientation
+    print(particle_orientations)
     particle_orientations = particle_orientations @ rotation
-
+    print(particle_orientations)
     return updated_particle_positions, particle_orientations
 
 
