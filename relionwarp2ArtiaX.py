@@ -8,7 +8,6 @@ import numpy as np
 import sys, os
 import starfile
 
-console = rich.console.Console()
 
 def modify_star(input_star_file, output_star_file):
     star = starfile.read(input_star_file, always_dict=True)
