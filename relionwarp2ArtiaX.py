@@ -11,9 +11,9 @@ import starfile
 console = rich.console.Console()
 
 def modify_star(input_star_file, output_star_file):
-	star = starfile.read(input_star_file, always_dict=True)
+    star = starfile.read(input_star_file, always_dict=True)
     console.log(f"{input_star_file} read")
-	
+    
     if not all(key in star for key in ('particles', 'optics')):
         console.log("expected RELION 3.1+ style STAR file containing particles and optics blocks", style="bold red")
 
