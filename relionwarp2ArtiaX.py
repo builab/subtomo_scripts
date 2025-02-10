@@ -44,8 +44,7 @@ def modify_star(input_star_file, output_star_file):
 
   
     # write output
-    with console.status(f"writing output STAR file {output_star_file}", spinner="arc"):
-        starfile.write(star, output_star_file)
+    starfile.write(star, output_star_file)
     print(f"Output with ArtiaX compatible written to {output_star_file}")
     
 if __name__ == "__main__":
