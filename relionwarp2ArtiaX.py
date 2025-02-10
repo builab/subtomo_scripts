@@ -39,7 +39,7 @@ def modify_star(input_star_file, output_star_file):
     print("updated shift values in 'rlnCoordinateX','rlnCoordinateY', 'rlnCoordinateZ'")
     
     # Remove .tomostar
-    star['particles']['rlnTomoName'].str.replace('.tomostar', '', regex=False)
+    star['particles']['rlnTomoName'].replace('.tomostar', '', regex=False, inplace=True)
     print("Remove .tomostar in 'rlnTomoName'")
 
     # write output
