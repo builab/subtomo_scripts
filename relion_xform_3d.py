@@ -31,6 +31,7 @@ console = rich.console.Console()
 def cli(
     input_star_file: Path = typer.Option(..., '--input', '-i', help="input star file"),
     shift: tuple[float, float, float] = typer.Option(..., '--shift', '-s', help="shift x, y and z"),
+    rots: tuple[float, float, float] = typer.Option(..., '--eulers', '-s', help="eulers rot, tilt and psi"),
     output_star_file: Path = typer.Option(..., '--output', '-o', help="output star file"),
 ):
     star = starfile.read(input_star_file, always_dict=True)
@@ -74,8 +75,8 @@ def cli(
     console.log("calculated rotation matrices from euler angles")
     
     # Get in MT rotation of 25.7866
-    rotation = R.from_euler(angles=[25.7866, 0, 0], seq='ZYZ', degrees=True).as_matrix()
-    print(rotation)
+    rotation = R.from_euler(angles=np.asarray(rots), seq='ZYZ', degrees=True).as_matrix()
+    #print(rotation)
 
     # recenter particles, we don't care about orientations so apply identity rotation
     new_xyz, updated_particle_orientations = shift_then_rotate_particles(
