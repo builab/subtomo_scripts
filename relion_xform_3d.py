@@ -95,7 +95,7 @@ def cli(
     console.log("updated shift values in 'rlnOriginXAngst', 'rlnOriginYAngst', 'rlnOriginZAngst'")
     
     # express new orientation in star file
-    new_euler_angles = R.from_matrix(updated_particle_orientations).as_euler('ZYZ', degrees='True')
+    new_euler_angles = R.from_matrix(updated_particle_orientations).inv().as_euler('ZYZ', degrees='True')
     console.log("calculated new eulers")
     
     star['particles'][['rlnAngleRot', 'rlnAngleTilt', 'rlnAnglePsi']] = new_euler_angles
