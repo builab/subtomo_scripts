@@ -12,7 +12,7 @@
 # exclude-newer = "2025-01-01T00:00:00Z"
 # ///
 
-# Script from Alister Burt
+# Script from Alister Burt, modified to take rot by Huy Bui
 
 
 from pathlib import Path
@@ -31,7 +31,7 @@ console = rich.console.Console()
 def cli(
     input_star_file: Path = typer.Option(..., '--input', '-i', help="input star file"),
     shift: tuple[float, float, float] = typer.Option(..., '--shift', '-s', help="shift x, y and z"),
-    rots: tuple[float, float, float] = typer.Option(..., '--eulers', '-s', help="eulers rot, tilt and psi"),
+    rots: tuple[float, float, float] = typer.Option(..., '--rot', '-r', help="eulers rot, tilt and psi"),
     output_star_file: Path = typer.Option(..., '--output', '-o', help="output star file"),
 ):
     star = starfile.read(input_star_file, always_dict=True)
