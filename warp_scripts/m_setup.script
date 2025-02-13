@@ -1,0 +1,92 @@
+#!/bin/bash
+#SBATCH --ntasks=1 
+#SBATCH --partition=ampere
+#SBATCH --error=m_setup.err
+#SBATCH --output=m_setup.out
+#SBATCH --job-name=m
+#SBATCH --mem-per-cpu=18GB
+#SBATCH --gres=gpu:4
+#SBATCH --cpus-per-task=8
+#SBATCH --nodes=1
+#SBATCH --time=1-00:00:00
+
+
+# Load WarpTools
+module load warpem
+
+
+# Define variables
+MTools create_population \
+--directory m14_symexp \
+--name MT14PF_symexp
+
+MTools create_source \
+--name MT14PF_symexp \
+--population m14_symexp/MT14PF_symexp.population \
+--processing_settings warp_tiltseries.settings
+
+
+# GPU
+
+MTools create_species \
+--population m14_symexp/MT14PF_symexp.population \
+--name MT14PF_symexp \
+--diameter 400 \
+--sym C1 \
+--temporal_samples 1 \
+--half1 relion_14PF/Refine3D/job081/run_half1_class001_unfil.mrc \
+--half2 relion_14PF/Refine3D/job081/run_half2_class001_unfil.mrc \
+--mask m14_symexp/mask_MT14PF_4.0Apx_binary.mrc \
+--particles_relion relion_14PF/Refine3D/job081/run_data.star \
+--angpix_resample 2.5 \
+--lowpass 8
+
+MCore \
+--population m14_symexp/MT14PF_symexp.population \
+--iter 0
+
+MCore \
+--population m14_symexp/MT14PF_symexp.population \
+--refine_imagewarp 6x4 \
+--refine_particles \
+--ctf_defocus \
+--ctf_defocusexhaustive \
+--perdevice_refine 1
+
+MCore \
+--population m14_symexp/MT14PF_symexp.population \
+--refine_imagewarp 6x4 \
+--refine_particles \
+--ctf_defocus 
+
+MCore \
+--population m14_symexp/MT14PF_symexp.population \
+--refine_imagewarp 6x4 \
+--refine_particles \
+--refine_stageangles
+
+EstimateWeights \
+--population m14_symexp/MT14PF_symexp.population \
+--source MT14PF_symexp \
+--resolve_items
+
+MCore \
+--population m14_symexp/MT14PF_symexp.population 
+
+EstimateWeights \
+--population m14_symexp/MT14PF_symexp.population \
+--source MT14PF_symexp \
+--resolve_frames
+
+MCore \
+--population m14_symexp/MT14PF_symexp.population \
+--perdevice_refine 1 \
+--refine_particles
+
+MCore \
+--population m14_symexp/MT14PF_symexp.population \
+--refine_volumewarp 1x1x1x41 \
+--refine_particles \
+--refine_tiltmovies \
+--perdevice_refine 1 \
+

@@ -13,6 +13,7 @@
 # ///
 
 # Script from Alister Burt, modified to take rot by Huy Bui
+# running with uv run relion_xform_3d.py -i input.star -o output.star -s 0 0 1.073 -r 25.78 0 0
 
 
 from pathlib import Path
