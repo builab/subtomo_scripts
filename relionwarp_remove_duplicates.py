@@ -68,7 +68,7 @@ def cli(
     
     # Remove duplicates by DeepSeek
     min_distance = min_distance / pixel_spacing
-    db = DBSCAN(eps=min_distance, min_samples=1).fit(coords)
+    db = DBSCAN(eps=min_distance, min_samples=1).fit(xyz)
 
     # Get cluster labels
     df['Cluster'] = db.labels_
