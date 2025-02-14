@@ -75,7 +75,7 @@ def cli(
     df_particles['Cluster'] = db.labels_
 
     # Keep one representative point per cluster (e.g., first occurrence)
-    df_unique = df.groupby('Cluster').first().reset_index()
+    df_unique = df_particles.groupby('Cluster').first().reset_index()
     
     # Drop cluster column
     df_unique = df_unique.drop(columns=['Cluster'])
