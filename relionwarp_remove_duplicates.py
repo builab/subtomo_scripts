@@ -71,7 +71,8 @@ def cli(
     db = DBSCAN(eps=min_distance, min_samples=1).fit(xyz)
 
     # Get cluster labels
-    df['Cluster'] = db.labels_
+    df_particles = star['particles']
+    df_particles['Cluster'] = db.labels_
 
     # Keep one representative point per cluster (e.g., first occurrence)
     df_unique = df.groupby('Cluster').first().reset_index()
