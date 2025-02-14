@@ -30,7 +30,7 @@ console = rich.console.Console()
 
 def cli(
     input_star_file: Path = typer.Option(..., '--input', '-i', help="input star file"),
-    min_distance: Path = typer.Option(..., '--min_d', '-d', help="min distance in Angstrom"),
+    min_distance: float = typer.Option(..., '--min_d', '-d', help="min distance in Angstrom"),
     output_star_file: Path = typer.Option(..., '--output', '-o', help="output star file"),
 ):
     star = starfile.read(input_star_file, always_dict=True)
@@ -67,7 +67,7 @@ def cli(
     console.log("applied shifts to particle positions")
     
     # Remove duplicates by DeepSeek
-    min_distance = float(min_distance) / pixel_spacing
+    min_distance = min_distance / pixel_spacing
     db = DBSCAN(eps=minD, min_samples=1).fit(coords)
 
     # Get cluster labels
