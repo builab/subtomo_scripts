@@ -83,6 +83,9 @@ def cli(
 
     star['particles'] = df_unique
     
+    print(star)
+
+    
     
     # write output
     with console.status(f"writing output STAR file {output_star_file}", spinner="arc"):
