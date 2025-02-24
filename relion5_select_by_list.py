@@ -20,11 +20,11 @@ def select_by_list(input_star_file, list, output_star_file):
     
     df['rlnTomoName_cleaned'] = df['rlnTomoName'].str.split('.').str[0]
     
-	filtered_df = df[df['rlnTomoName_cleaned'].isin(filter_list)]
-	filtered_df = filtered_df.drop(columns=['rlnTomoName_cleaned'])
-	print(f"{len(filtered_df)} particles found after filtering")
+    filtered_df = df[df['rlnTomoName_cleaned'].isin(filter_list)]
+    filtered_df = filtered_df.drop(columns=['rlnTomoName_cleaned'])
+    print(f"{len(filtered_df)} particles found after filtering")
 
-	star['particles'] = filtered_df
+    star['particles'] = filtered_df
     # write output
     starfile.write(star, output_star_file)
     print(f"Output with written to {output_star_file}")
