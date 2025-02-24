@@ -4,8 +4,8 @@
 # In the future, expand the column to use with a flag
 
 import argparse
-import sys, os
 import starfile
+import pandas as pd
 
 
 def select_by_list(input_star_file, list, output_star_file):
