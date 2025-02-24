@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # Script to generate star file by selected on a list of tomograms
 # HB, McGill, 2025. Style coming from recenter_3d.py by Alister Burt
-# In the future, expand the column to use with a flag
 
 import argparse
 import starfile
