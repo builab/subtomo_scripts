@@ -5,7 +5,7 @@
 # HB, McGill, 2025. Style coming from recenter_3d.py by Alister Burt
 
 import numpy as np
-import sys, os
+import sys, os, re
 import starfile
 
 
@@ -39,7 +39,8 @@ def modify_star(input_star_file, output_star_file):
     print("updated shift values in 'rlnCoordinateX','rlnCoordinateY', 'rlnCoordinateZ'")
     
     # Remove .tomostar
-    star['particles']['rlnTomoName'] = star['particles']['rlnTomoName'].str.replace('.tomostar', '', regex=False)
+    #star['particles']['rlnTomoName'] = star['particles']['rlnTomoName'].str.replace('.tomostar', '', regex=False)
+    star['particles']['rlnTomoName'] = star['particles']['rlnTomoName'].str.replace(r'\.tomostar$', '', regex=True).str.replace(r'_TS(\d+)$', lambda m: f"_{int(m.group(1))}", regex=True)
     print("Remove .tomostar in 'rlnTomoName'")
 
     # write output
@@ -47,6 +48,11 @@ def modify_star(input_star_file, output_star_file):
     print(f"Output with ArtiaX compatible written to {output_star_file}")
     
 if __name__ == "__main__":
+    print("Modifying Relion Warp file to ArtiaX format")
+    print(" - Remove .tomostar from tomogram name")
+    print(" - Replace _TSxxx as _xxx")
+    print(" - Convert coordinate to Relion 4 format")
+
     if len(sys.argv) != 2:
         print("Usage: python relionwarp2ArtiaX.py input_star_file")
         sys.exit(1)
