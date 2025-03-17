@@ -40,7 +40,7 @@ def modify_star(input_star_file, output_star_file):
     
     # Remove .tomostar
     #star['particles']['rlnTomoName'] = star['particles']['rlnTomoName'].str.replace('.tomostar', '', regex=False)
-    star['particles']['rlnTomoName'] = star['particles']['rlnTomoName'].str.replace(r'\.tomostar$', '', regex=True).str.replace(r'_TS(\d+)$', lambda m: f"_{int(m.group(1))}", regex=True)
+    star['particles']['rlnTomoName'] = star['particles']['rlnTomoName'].str.replace(r'\.tomostar$', '', regex=True).str.replace(r'_TS(\d+)$', r'_\1', regex=True)
     print("Remove .tomostar in 'rlnTomoName'")
 
     # write output
