@@ -33,5 +33,5 @@ WarpTools ts_reconstruct \
   --settings "$settings" \
   --angpix "$angpix" \
   --halfmap_frames \
-  $( [ "$dont_invert" = true ] && echo "--dont_invert" ) \
+  $( [ "$dont_invert" = true ] && echo "--dont_invert " ) \
   $( [ -n "$input_data" ] && echo "--input_data $input_data" )
