@@ -9,7 +9,6 @@ File_003.tomostar,"0,1,2"
 
 Requires starfile package (pip install starfile)
 
-# NOT Tested YEt
 """
 
 import os
@@ -24,9 +23,10 @@ def load_removal_csv(csv_path):
     with open(csv_path) as f:
         reader = csv.DictReader(f)
         for row in reader:
-            filename = row['filename']
-            zvalues = [int(z) for z in row['zvalues_to_remove'].split(',')] if row['zvalues_to_remove'] else []
-            removal_map[filename] = zvalues
+            tomo_name = row['TomoName']
+            zvalues = [int(z) for z in row['ExcludedViews'].split(',')] if row['ExcludedViews'] else []
+            # Convert to 0-based
+            removal_map[tomo_name] = zvalues - 1 
     return removal_map
 
 def process_tomostar(input_path, output_path, zvalues_to_remove):
@@ -69,7 +69,8 @@ def main():
             output_path = os.path.join(args.output_dir, filename)
             
             # Get removal instructions for this file
-            zvalues_to_remove = removal_map.get(filename, [])
+            tomo_name = filename.removesuffix(".tomostar")
+            zvalues_to_remove = removal_map.get(tomo_name, [])
             
             if zvalues_to_remove:
                 print(f"Processing {filename} - removing indices: {zvalues_to_remove}")
