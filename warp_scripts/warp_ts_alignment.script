@@ -1,10 +1,11 @@
 #!/bin/bash
 #SBATCH --ntasks=1 
-#SBATCH --partition=cpu
+#SBATCH --partition=ampere
 #SBATCH --error=warp_ts_etomo_fiducials.err
 #SBATCH --output=warp_ts_etomo_fiducials.out
 #SBATCH --job-name=warp_fiducials
 #SBATCH --mem-per-cpu=18GB
+#SBATCH --#SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=10
 #SBATCH --nodes=1
 #SBATCH --time=1-00:00:00
@@ -16,7 +17,7 @@ module load warpem
 settings="warp_tiltseries.settings"
 
 # User-defined variables (edit these as needed)
-angpix=8.48              # Pixel size in Angstroms
+angpix=8.48             # Pixel size in Angstroms
 fiducial_size=10         # Diameter of fiducial markers in nm
 initial_axis=85.7        # Initial tilt axis angle in degrees
 
