@@ -24,9 +24,9 @@ def load_removal_csv(csv_path):
         reader = csv.DictReader(f)
         for row in reader:
             tomo_name = row['TomoName']
-            zvalues = [int(z) for z in row['ExcludedViews'].split(',')] if row['ExcludedViews'] else []
+            zvalues = [int(z) -1 for z in row['ExcludedViews'].split(',')] if row['ExcludedViews'] else []
             # Convert to 0-based
-            removal_map[tomo_name] = zvalues - 1 
+            removal_map[tomo_name] = zvalues
     return removal_map
 
 def process_tomostar(input_path, output_path, zvalues_to_remove):
@@ -73,7 +73,7 @@ def main():
             zvalues_to_remove = removal_map.get(tomo_name, [])
             
             if zvalues_to_remove:
-                print(f"Processing {filename} - removing indices: {zvalues_to_remove}")
+                print(f"Processing {filename} - removing indices (0-based): {zvalues_to_remove}")
                 success = process_tomostar(input_path, output_path, zvalues_to_remove)
             else:
                 # Just copy if no removals needed
