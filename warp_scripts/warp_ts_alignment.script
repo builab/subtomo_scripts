@@ -1,0 +1,32 @@
+#!/bin/bash
+#SBATCH --ntasks=1 
+#SBATCH --partition=cpu
+#SBATCH --error=warp_ts_etomo_fiducials.err
+#SBATCH --output=warp_ts_etomo_fiducials.out
+#SBATCH --job-name=warp_fiducials
+#SBATCH --mem-per-cpu=18GB
+#SBATCH --cpus-per-task=10
+#SBATCH --nodes=1
+#SBATCH --time=1-00:00:00
+
+# Load WarpTools
+module load warpem
+
+# Define variables
+settings="warp_tiltseries.settings"
+
+# User-defined variables (edit these as needed)
+angpix=8.48              # Pixel size in Angstroms
+fiducial_size=10         # Diameter of fiducial markers in nm
+initial_axis=85.7        # Initial tilt axis angle in degrees
+
+# Empty quote "" for all, 1 tomogram only  like "tomostar/SPEF1MT2_018.tomostar"
+input_data=""
+
+# Run WarpTools ts_etomo_fiducials with specified settings
+WarpTools ts_etomo_fiducials \
+  --settings "$settings" \
+  --angpix "$angpix" \
+  --fiducial_size "$fiducial_size" \
+  --initial_axis "$initial_axis" \
+    $( [ -n "$input_data" ] && echo "--input_data $input_data" )
