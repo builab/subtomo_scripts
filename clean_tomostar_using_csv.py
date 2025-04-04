@@ -69,7 +69,7 @@ def main():
             output_path = os.path.join(args.output_dir, filename)
             
             # Get removal instructions for this file
-            tomo_name = filename.removesuffix(".tomostar")
+            tomo_name = os.path.splitext(filename)[0]
             zvalues_to_remove = removal_map.get(tomo_name, [])
             
             if zvalues_to_remove:
