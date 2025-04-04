@@ -79,7 +79,7 @@ def main():
     
     
     print (f"\nClean tomostar from \"{args.input_dir}\" using excluded values from {args.csv}")
-    print (f"Output folder {args.output_dir}")
+    print (f"Output folder {args.output_dir}\n")
 
     # Create output directory
     os.makedirs(args.output_dir, exist_ok=True)
