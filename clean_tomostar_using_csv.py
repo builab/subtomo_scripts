@@ -76,6 +76,10 @@ def main():
     parser.add_argument('--csv', required=True, help='CSV file with removal instructions')
     parser.add_argument('--output_dir', required=True, help='Output directory for cleaned files')
     args = parser.parse_args()
+    
+    
+    print (f"\nClean tomostar from \"{args.input_dir}\" using excluded values from {args.csv}")
+    print (f"Output folder {args.output_dir}")
 
     # Create output directory
     os.makedirs(args.output_dir, exist_ok=True)
