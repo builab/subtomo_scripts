@@ -2,6 +2,7 @@
 """
 Script to remove entry in tomostar file using a csv file
 csv file format
+Update to remove trailing space in header
 filename,zvalues_to_remove
 File_001.tomostar,"0,1,40"
 File_002.tomostar,""
@@ -45,8 +46,13 @@ def load_removal_csv(csv_path):
     """Load removal instructions from CSV"""
     removal_map = {}
     with open(csv_path) as f:
-        reader = csv.DictReader(f)
-        for row in reader:
+        # Read the first line (header), strip spaces from each column name
+        reader = csv.reader(f)
+        headers = [h.strip() for h in next(reader)]
+
+        # Use the cleaned headers with DictReader
+        dict_reader = csv.DictReader(f, fieldnames=headers)
+        for row in dict_reader:
             tomo_name = row['TomoName']
             zvalues_str = row['ExcludedViews']
             zvalues = parse_zvalues(zvalues_str)

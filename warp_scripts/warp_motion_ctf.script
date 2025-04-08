@@ -37,3 +37,7 @@ WarpTools fs_motion_and_ctf \
   --out_averages \
   $( [ "$out_average_halves" = true ] && echo "--out_average_halves" ) \
   $( [ -n "$input_data" ] && echo "--input_data $input_data" )
+
+
+# Report quality
+WarpTools filter_quality --settings "$settings" --histograms > histogram.txt
