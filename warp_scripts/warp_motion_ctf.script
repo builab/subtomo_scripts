@@ -14,6 +14,8 @@
 # Load WarpTools
 module load warpem
 
+# WARNING: only use when motioncor everything
+rm warp_frameseries/*.xml
 
 # Define variables
 settings="warp_frameseries.settings"
@@ -25,6 +27,7 @@ out_average_halves=true # Set to true if you want to include --out_average_halve
 
 # Empty quote "" for all, 1-2 movie only  like "frames/ARMC9_00591_-9.0.tif frames/ARMC9_00592_-12.0.tif" or a text file list
 input_data=""
+
 
 # Build the command dynamically based on flags
 WarpTools fs_motion_and_ctf \
