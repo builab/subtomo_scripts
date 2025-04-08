@@ -13,7 +13,6 @@
 # Load WarpTools
 module load warpem
 
-
 # Define variables
 settings="warp_tiltseries.settings"
 
@@ -22,6 +21,17 @@ angpix=2.12 # Use unbinned pixel size for already aligned TS
 
 # Empty quote "" for all, 1 tomogram only  like "tomostar/SPEF1MT2_018.tomostar"
 input_data=""
+
+# XML removal logic. Remove everything if running again. Remove only 1 if running 1.
+if [ -z "$input_data" ]; then
+    # If input_data is empty, remove all XML files
+    rm warp_tiltseries/*.xml
+elif [[ "$input_data" == *".tomostar" ]]; then
+    # If input_data is a tomostar file, remove the corresponding XML
+    tomostar_filename=$(basename "$input_data")
+    tomostar_basename=${tomostar_filename%.tomostar}
+    rm "warp_tiltseries/${tomostar_basename}.xml"
+fi
 
 # Run WarpTools ts_reconstruct with specified settings
 WarpTools ts_stack \
