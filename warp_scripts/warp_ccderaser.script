@@ -48,7 +48,7 @@ for INPUT_DIR in $INPUT_DIRS; do
       DIRNAME=$(dirname "$file")
 
       ccderaser -input "$file" \
-                -output "$OUTPUT_FILE" \
+                -output "${DIRNAME}/${OUTPUT_FILE}" \
                 -halffloat "$HALFFLOAT" \
                 -FindPeaks \
                 -PeakCriterion "$PEAK_CRITERION" \
