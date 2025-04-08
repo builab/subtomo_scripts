@@ -10,16 +10,14 @@
 #SBATCH --time=1-00:00:00
 
 # This script uses ccderaser to eliminate hot pixel, X-ray
-# On paris
-# NOT YET TESTED
 
 # Load IMOD
 module load imod
 
 
 # Default values
-INPUT_DIR="."
-MAX_JOBS=1
+INPUT_DIRS="warp_frameseries/average warp_frameseries/average/even warp_frameseries/average/odd" # You can just put 1 dir in
+MAX_JOBS=20 # Same value as --cpus-per-task
 HALFFLOAT=2
 PEAK_CRITERION=8
 DIFF_CRITERION=6.0
@@ -29,39 +27,43 @@ EXTRA_LARGE_RADIUS=8.0
 EDGE_EXCLUSION_WIDTH=4
 
 
-# Find all .mrc files in the input directory
-input_files=("$INPUT_DIR"/*.mrc)
+# Process each directory
+for INPUT_DIR in $INPUT_DIRS; do
+  # Find all .mrc files in the input directory
+  input_files=("$INPUT_DIR"/*.mrc)
 
-# Process files with limited parallel jobs
-for file in "${input_files[@]}"; do
-  [ -e "$file" ] || continue  # Skip if no .mrc files found
+  # Process files with limited parallel jobs
+  for file in "${input_files[@]}"; do
+    [ -e "$file" ] || continue  # Skip if no .mrc files found
 
-  # Throttle if MAX_JOBS is reached
-  while [[ $(jobs -r -p | wc -l) -ge $MAX_JOBS ]]; do
-    wait -n
+    # Throttle if MAX_JOBS is reached
+    while [[ $(jobs -r -p | wc -l) -ge $MAX_JOBS ]]; do
+      wait -n
+    done
+
+    # Run ccderaser in the background
+    (
+      BASENAME="$(basename -- "$file" .mrc)"
+      OUTPUT_FILE="${BASENAME}_erased.mrc"
+      DIRNAME=$(dirname "$file")
+
+      ccderaser -input "$file" \
+                -output "$OUTPUT_FILE" \
+                -halffloat "$HALFFLOAT" \
+                -FindPeaks \
+                -PeakCriterion "$PEAK_CRITERION" \
+                -DiffCriterion "$DIFF_CRITERION" \
+                -BigDiffCriterion "$BIG_DIFF_CRITERION" \
+                -GiantCriterion "$GIANT_CRITERION" \
+                -ExtraLargeRadius "$EXTRA_LARGE_RADIUS" \
+                -EdgeExclusionWidth "$EDGE_EXCLUSION_WIDTH"
+
+      # Rename original and processed files
+      mv "$file" "$DIRNAME/${BASENAME}.mrc~"
+      mv "$OUTPUT_FILE" "$file"
+    ) &
   done
-
-  # Run ccderaser in the background
-  (
-    BASENAME="$(basename -- "$file" .mrc)"
-    OUTPUT_FILE="${BASENAME}_erased.mrc"
-
-    ccderaser -input "$file" \
-              -output "$OUTPUT_FILE" \
-              -halffloat "$HALFFLOAT" \
-              -FindPeaks \
-              -PeakCriterion "$PEAK_CRITERION" \
-              -DiffCriterion "$DIFF_CRITERION" \
-              -BigDiffCriterion "$BIG_DIFF_CRITERION" \
-              -GiantCriterion "$GIANT_CRITERION" \
-              -ExtraLargeRadius "$EXTRA_LARGE_RADIUS" \
-              -EdgeExclusionWidth "$EDGE_EXCLUSION_WIDTH"
-
-    # Rename original and processed files
-    mv "$file" "${BASENAME}~"
-    mv "$OUTPUT_FILE" "$file"
-  ) &
 done
 
-# Wait for all remaining background jobs to finish
+# Wait for all background jobs to finish
 wait
