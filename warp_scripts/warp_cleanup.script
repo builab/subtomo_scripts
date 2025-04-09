@@ -1,0 +1,54 @@
+#!/bin/bash
+#SBATCH --ntasks=1 
+#SBATCH --partition=cpu
+#SBATCH --error=warp_ts_setting.err
+#SBATCH --output=warp_ts_setting.out
+#SBATCH --job-name=warp
+#SBATCH --mem-per-cpu=18GB
+#SBATCH --cpus-per-task=1
+#SBATCH --nodes=1
+#SBATCH --time=1-00:00:00
+
+# Script to clean up after running warp
+
+# Variables to edit
+remove_ts_stack=false
+remove_even_odd_recon=false
+
+# Remove backup files for ccderaser or fidder
+echo "Removing ~ backup files..."
+rm -f warp_frameseries/average/*~ 2>/dev/null
+rm -f warp_frameseries/average/even/*~ 2>/dev/null
+rm -f warp_frameseries/average/odd/*~ 2>/dev/null
+echo "Done."
+
+# Remove tilt stack directory if enabled
+if [ "$remove_ts_stack" = true ]; then
+    echo "Removing tilt stack directory..."
+    if [ -d "warp_tiltseries/tiltstack" ]; then
+        rm -rf warp_tiltseries/tiltstack
+        echo "Done."
+    else
+        echo "Directory 'warp_tiltseries/tiltstack' not found, skipping."
+    fi
+else
+    echo "remove_ts_stack is not true, skipping tilt stack removal."
+fi
+
+# Remove even/odd reconstruction directories if enabled
+if [ "$remove_even_odd_recon" = true ]; then
+    echo "Removing even/odd reconstruction directories..."
+    if [ -d "warp_tiltseries/recon/even" ]; then
+        rm -rf warp_tiltseries/recon/even
+    else
+        echo "Directory 'warp_tiltseries/recon/even' not found, skipping."
+    fi
+    if [ -d "warp_tiltseries/recon/odd" ]; then
+        rm -rf warp_tiltseries/recon/odd
+    else
+        echo "Directory 'warp_tiltseries/recon/odd' not found, skipping."
+    fi
+    echo "Done."
+else
+    echo "remove_even_odd_recon is not true, skipping even/odd recon removal."
+fi

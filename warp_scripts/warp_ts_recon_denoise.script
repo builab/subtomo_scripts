@@ -21,6 +21,7 @@ module load warpem
 settings="warp_tiltseries.settings"
 
 # Variables to edit
+use_warp_denoise=false
 angpix=16 # Reconstruction pixel size for denoising should be ~12-16 Angstrom
 # If you want to do 1 tomogram only, otherwise, put empty quote ""
 input_data="tomostar/SPEF1MT2_018.tomostar"
@@ -34,4 +35,5 @@ WarpTools ts_reconstruct \
   --angpix "$angpix" \
   --halfmap_frames \
   $( [ "$dont_invert" = true ] && echo "--dont_invert " ) \
+  $( [ "$use_warp_denoise" = true ] && echo "--deconv " ) \
   $( [ -n "$input_data" ] && echo "--input_data $input_data" )
