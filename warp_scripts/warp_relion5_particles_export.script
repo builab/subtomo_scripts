@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --ntasks=1 
 #SBATCH --partition=titan
-#SBATCH --error=warp_rel5_part_import.err
-#SBATCH --output=warp_rel5_part_import.out
+#SBATCH --error=warp_rel5_part_export.err
+#SBATCH --output=warp_rel5_part_export.out
 #SBATCH --job-name=warp
 #SBATCH --mem-per-cpu=18GB
 #SBATCH --gres=gpu:1
