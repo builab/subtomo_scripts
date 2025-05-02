@@ -1,161 +1,97 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
-mrc2em.py - A program to convert MRC format files to EM format
-Written by Claude Sonnet 3.7, modified by Huy Bui, McGill 2025
-NOT YET TESTED
+mrc2em.py - Convert MRC files to EM format
+
+This script converts electron microscopy data from MRC format to EM format,
+which is used by some 3D visualization and processing software.
+Written by Claude.ai, Tested by Huy Bui, McGill University
+
+Usage:
+    python mrc2em.py input.mrc output.em
 """
 
-import argparse
-import numpy as np
-import os
 import sys
+import os
+import numpy as np
 import mrcfile
-import struct
+import emfile
+import argparse
 
-def write_em_header(file_obj, data, voxel_size=None):
-    """
-    Write the header of an EM file
+
+def read_mrc(mrc_path):
+    """Read an MRC file and return header information and data."""
+    with mrcfile.open(mrc_path) as mrc:
+        # Extract relevant header information
+        nx, ny, nz = mrc.header.nx, mrc.header.ny, mrc.header.nz
+        mode = mrc.header.mode
+        cella = (mrc.header.cella.x, mrc.header.cella.y, mrc.header.cella.z)
+        origin = (mrc.header.origin.x, mrc.header.origin.y, mrc.header.origin.z)
+        
+        # Get data
+        data = mrc.data.copy()
+        
+        return {
+            'nx': nx,
+            'ny': ny,
+            'nz': nz,
+            'mode': mode,
+            'cella': cella,
+            'origin': origin,
+            'data': data
+        }
+
+
+def write_em(mrc_data, em_path):
+    """Write data to EM format using emfile package."""
+    data = mrc_data['data']
+    mrc_mode = mrc_data['mode']
     
-    Parameters:
-    -----------
-    file_obj : file object
-        Open file object in binary mode
-    data : numpy.ndarray
-        3D volume data
-    voxel_size : tuple or None
-        Voxel size in Ångströms (x, y, z)
-    """
-    # Make sure the header is 512 bytes (filled with zeros initially)
-    header = bytearray(512)
-    
-    # Machine coding (6 = PC)
-    header[0] = 6
-    
-    # General purpose flag (0 = simple 3D volume)
-    header[1] = 0
-    
-    # Data type
-    if data.dtype == np.int8:
-        header[2] = 1
-    elif data.dtype == np.int16:
-        header[2] = 2
-    elif data.dtype == np.float32:
-        header[2] = 4
-    elif data.dtype == np.complex64 or data.dtype == np.complex128:
-        header[2] = 8
+    # Convert data to appropriate type based on MRC mode
+    # MRC modes: 0=int8, 1=int16, 2=float32, 3=complex int16, 4=complex float32
+    if mrc_mode == 0:  # int8
+        data = data.astype(np.int8)
+    elif mrc_mode == 1:  # int16
+        data = data.astype(np.int16)
+    elif mrc_mode == 2:  # float32
+        data = data.astype(np.float32)
     else:
-        # Default to float32 for other types
-        header[2] = 4
+        raise ValueError(f"Unsupported MRC mode {mrc_mode} for EM conversion")
     
-    # Map dimensions (Z, Y, X in EM convention)
-    header[3] = data.shape[2]  # X dimension
-    header[4] = data.shape[1]  # Y dimension
-    header[5] = data.shape[0]  # Z dimension
-    
-    # No extended header
-    header[6] = 0
-    
-    # Voxel size (at offset 40-48 in some EM formats)
-    if voxel_size is not None:
-        # Pack voxel size as float32 values
-        vs_x = struct.pack('f', float(voxel_size[0]))
-        vs_y = struct.pack('f', float(voxel_size[1]))
-        vs_z = struct.pack('f', float(voxel_size[2]))
-        
-        # Insert values at appropriate positions
-        header[40:44] = vs_x
-        header[44:48] = vs_y
-        header[48:52] = vs_z
-    
-    # Write the header
-    file_obj.write(header)
+    # Use emfile to write the EM file
+    emfile.write(em_path, data)
 
-def mrc_to_em(mrc_file, em_file, force_voxel_size=None):
-    """
-    Convert MRC file to EM file
-    
-    Parameters:
-    -----------
-    mrc_file : str
-        Path to input MRC file
-    em_file : str
-        Path to output EM file
-    force_voxel_size : float or None
-        If provided, override the voxel size with this value
-        
-    Returns:
-    --------
-    success : bool
-        True if conversion was successful
-    """
-    try:
-        # Open MRC file
-        with mrcfile.open(mrc_file, mode='r') as mrc:
-            # Get data and voxel size
-            data = mrc.data
-            
-            if force_voxel_size is not None:
-                voxel_size = (force_voxel_size, force_voxel_size, force_voxel_size)
-                print(f"Using forced voxel size: {force_voxel_size} Å")
-            else:
-                # Use voxel size from MRC file
-                voxel_size = mrc.voxel_size
-                print(f"Using voxel size from MRC file: {voxel_size.x}, {voxel_size.y}, {voxel_size.z} Å")
-        
-        # Determine appropriate data type for EM format
-        if data.dtype == np.int8 or data.dtype == np.uint8:
-            em_data = data.astype(np.int8)
-        elif data.dtype == np.int16 or data.dtype == np.uint16:
-            em_data = data.astype(np.int16)
-        elif data.dtype == np.complex64 or data.dtype == np.complex128:
-            em_data = data.astype(np.complex64)
-        else:
-            # Default to float32 for other types
-            em_data = data.astype(np.float32)
-        
-        # Create EM file
-        with open(em_file, 'wb') as f:
-            # Write header
-            write_em_header(f, em_data, voxel_size)
-            
-            # Write data
-            em_data.tofile(f)
-        
-        return True
-    
-    except Exception as e:
-        print(f"Error converting file: {e}")
-        return False
 
 def main():
-    # Set up command line argument parser
-    parser = argparse.ArgumentParser(description='Convert MRC format files to EM format')
-    parser.add_argument('--i', required=True, help='Input MRC file')
-    parser.add_argument('--o', required=True, help='Output EM file')
-    parser.add_argument('--force_header_angpix', type=float, help='Force voxel size (in Ångström)')
-    
-    # Parse arguments
+    parser = argparse.ArgumentParser(description='Convert MRC file to EM format.')
+    parser.add_argument('input', help='Input MRC file')
+    parser.add_argument('output', help='Output EM file')
+    parser.add_argument('--overwrite', action='store_true', help='Overwrite output file if it exists')
     args = parser.parse_args()
     
-    # Print parameters
-    print(f"Input MRC file: {args.i}")
-    print(f"Output EM file: {args.o}")
-    if args.force_header_angpix:
-        print(f"Forcing voxel size to: {args.force_header_angpix} Å")
-    
-    # Check if input file exists
-    if not os.path.isfile(args.i):
-        print(f"Error: Input file '{args.i}' does not exist")
+    if not os.path.exists(args.input):
+        print(f"Error: Input file '{args.input}' does not exist.")
         return 1
     
-    # Perform the conversion
-    print("Converting MRC file to EM format...")
-    if mrc_to_em(args.i, args.o, args.force_header_angpix):
-        print(f"Conversion successful. EM file saved to: {args.o}")
+    if os.path.exists(args.output) and not args.overwrite:
+        print(f"Error: Output file '{args.output}' already exists. Use --overwrite to force.")
+        return 1
+    
+    try:
+        # Read MRC file
+        print(f"Reading MRC file: {args.input}")
+        mrc_data = read_mrc(args.input)
+        
+        # Write EM file
+        print(f"Writing EM file: {args.output}")
+        write_em(mrc_data, args.output)
+        
+        print("Conversion completed successfully.")
         return 0
-    else:
-        print("Conversion failed.")
+        
+    except Exception as e:
+        print(f"Error during conversion: {e}")
         return 1
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     sys.exit(main())
