@@ -28,7 +28,7 @@ tilt_range=15 # For filament, this value is ~15
 # If you want to do 1 tomogram only, otherwise, put empty quote ""
 input_data="tomostar/SPEF1MT2_018.tomostar"
 
-
+# Variable to take pick # minimum value 3 to 9 (3 is takes everything)
 minimum=3
 in_suffix="MT14PF" # This must match name of template
 
