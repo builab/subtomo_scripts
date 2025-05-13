@@ -1,9 +1,11 @@
 #!/usr/bin/python
 # Script to generate star file for the visualization in ArtiaX from Relion WarpTool 2.0.0
-# Multiply origin with pixelSize
+# WarpTool tm file use fraction coordinate and AutoPickMerit
 # Eliminate .tomostar from rlnTomoName
 # Also, deal with no optics header now, just need --angpix
-# HB, McGill, 2025. Style coming from recenter_3d.py by Alister Burt
+# Still work in progress
+# HB, McGill 2025/05
+
 
 import numpy as np
 import sys, os, re
@@ -11,10 +13,23 @@ import starfile
 import argparse
 
 
-def modify_star(input_star_file, output_star_file, angpix=None):
+def modify_warptm_star(input_star_file, output_star_file, tomo_size, angpix=None, min_score=3):
+    """
+    Modify Warp TM file to Relion 4
+    For WarpTM, there is no rlnTomoName, only rlnMicrographName
+    """
     star = starfile.read(input_star_file, always_dict=True)
     print(f"{input_star_file} read")
     
+    # Handle case where data is under empty key ''
+    if '' in star:
+        print("Found legacy STAR format (empty key), renaming to 'particles'")
+        star['particles'] = star.pop('')
+    
+    # Verify we have particles data
+    if 'particles' not in star:
+        raise ValueError("STAR file must contain either 'particles' table or legacy format (empty key)")
+
     if not all(key in star for key in ('particles', 'optics')):
         print("expected RELION 3.1+ style STAR file containing particles and optics blocks")
 
@@ -28,9 +43,12 @@ def modify_star(input_star_file, output_star_file, angpix=None):
     print(f"{len(df)} particles found")
     
     xyz = df[['rlnCoordinateX', 'rlnCoordinateY', 'rlnCoordinateZ']].to_numpy()
-    print("got binned origin in pixel from 'rlnCoordinateX', 'rlnCoordinateY', 'rlnCoordinateZ'")
+    print("Got fractional origin from 'rlnCoordinateX', 'rlnCoordinateY', 'rlnCoordinateZ'")
     
-    # Read pixel spacing from star file
+    print("Calculate pixel coordinates")
+    xyz = xyz * np.array(tomo_size)
+
+    # Read pixel spacing from star file (Unlikely in the case of Warptm File)
     try:
         pixel_spacing = df['rlnImagePixelSize'].to_numpy()[:, np.newaxis]  # Shape: (b, 1)
         print("Got pixel spacing from 'rlnImagePixelSize'")
@@ -53,6 +71,21 @@ def modify_star(input_star_file, output_star_file, angpix=None):
     star['particles'][['rlnCoordinateX', 'rlnCoordinateY', 'rlnCoordinateZ']] = new_origins
     print("updated shift values in 'rlnCoordinateX','rlnCoordinateY', 'rlnCoordinateZ'")
     
+    # Filter particles where 'rlnAutopickFigureOfMerit' > min_score
+    if 'particles' in star and 'rlnAutopickFigureOfMerit' in star['particles']:
+        star['particles'] = star['particles'][star['particles']['rlnAutopickFigureOfMerit'] > min_score]
+    else:
+        print("Warning: 'particles' or 'rlnAutopickFigureOfMerit' not found in STAR file")
+
+    # Ensure we have rlnTomoName column (rename if needed)
+    if 'rlnMicrographName' in star['particles'] and 'rlnTomoName' not in star['particles']:
+        star['particles'] = star['particles'].rename(columns={'rlnMicrographName': 'rlnTomoName'})
+        print("Renamed 'rlnMicrographName' to 'rlnTomoName'")
+
+    # Verify we have the required column
+    if 'rlnTomoName' not in star['particles']:
+        raise ValueError("STAR file lacks both 'rlnTomoName' and 'rlnMicrographName' columns")
+
     # Remove .tomostar
     star['particles']['rlnTomoName'] = star['particles']['rlnTomoName'].str.replace(r'\.tomostar$', '', regex=True).str.replace(r'_TS(\d+)$', r'_\1', regex=True)
     print("Remove .tomostar in 'rlnTomoName'")
@@ -64,10 +97,21 @@ def modify_star(input_star_file, output_star_file, angpix=None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Modify Relion Warp file to ArtiaX format')
     parser.add_argument('input_star_file', help='Input star file')
-    parser.add_argument('--angpix', type=float, help='Pixel size in Angstroms (optional)')
+    parser.add_argument('--angpix', type=float, required=True, help='Pixel size in Angstroms')
+    parser.add_argument('--min_score', type=float, required=True, help='Threshold for picking')
+    parser.add_argument('--tomo_size', type=int, nargs=3, required=True,
+                       metavar=('X', 'Y', 'Z'),
+                       help='Tomogram size as three space-separated integers (X Y Z)',
+                       default=[1024, 1440, 500])
+    
     args = parser.parse_args()
     
-    print("Modifying Relion Warp file to ArtiaX format")
+    print("Modifying Warp TM file to ArtiaX format")
+    print(f"Tomogram size: {args.tomo_size[0]} x {args.tomo_size[1]} x {args.tomo_size[2]}")
+    print(f"Angpix: {args.angpix} Å")
+    print(f"Min score for picking: {args.min_score} Å")
+
+    print("Operations:")
     print(" - Remove .tomostar from tomogram name")
     print(" - Replace _TSxxx as _xxx")
     print(" - Convert coordinate to Relion 4 format")
@@ -76,4 +120,4 @@ if __name__ == "__main__":
     base_name, ext = os.path.splitext(input_star_file)
     output_star_file = f"{base_name}_artiaX{ext}"
     
-    modify_star(input_star_file, output_star_file, args.angpix)
+    modify_warptm_star(input_star_file, output_star_file, args.tomo_size, args.angpix, args.min_score)
