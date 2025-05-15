@@ -18,13 +18,15 @@ module load warpem
 # Define variables
 settings="warp_tiltseries.settings"
 subdivisions=3
-output_processing="tm" # Set to a folder is temporary due to Warp bug
+output_processing="" # Supposed to be empty
 
 # Variables to edit
 tomo_angpix=8.48
 template_path="template/ribosome.mrc"
+lowpass=1 # Between 0-1, 1 = Nyqust
 template_diameter=300
 symmetry="C1"
+peak_distance=50
 # If you want to do 1 tomogram only, otherwise, put empty quote ""
 input_data="tomostar/SPEF1MT2_018.tomostar"
 
@@ -40,8 +42,10 @@ WarpTools ts_template_match \
   --template_path "$template_path" \
   --template_diameter "$template_diameter" \
   --symmetry "$symmetry" \
+  --lowpass "$lowpass" \
+  --peak_distance "$peak_distance" \
   --whiten \
-  $( [ -n "$input_data" ] && echo "--input_data $input_data" ) \
+  $( [ -n "$input_data" ] && echo "--input_data $input_data " ) \
   $( [ -n "$output_processing" ] && echo "--output_processing $output_processing" ) \
 
 
