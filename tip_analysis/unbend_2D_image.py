@@ -11,7 +11,8 @@
 # TODO: Need to read imodfile directly using imodfile package
 # Also: Allow to read multi Z mrc file
 # Do for all objects and contour to generate the output mrc file like filament_001.mrc to filament_999.mrc 
-
+# Optional, since the width is fixed, get the longest cilia and padded everything to the same height so it is easier to merged.
+# unbend_cilia_2D.py --mrc montage_stack.mrc --imod 2d_coord.mod --angpix 8.48 --width 40 --basename WT_cilia
 import mrcfile
 import pandas as pd
 import numpy as np
