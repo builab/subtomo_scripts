@@ -17,8 +17,8 @@ module load warpem
 settings="warp_tiltseries.settings"
 
 # Flipping defocus. After running this command, check if it is recommended to flip, then make
-# set_flip=true and run the command again
-set_flip=false
+# set_flip=true and run the command again. For McGill Krios, the set_flip=true
+set_flip=true
 
 # Run WarpTools ts_import_alignments with specified settings
 WarpTools ts_defocus_hand \
