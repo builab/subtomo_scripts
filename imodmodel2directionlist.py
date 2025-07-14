@@ -31,7 +31,7 @@ def process_mod_file(filepath):
         sorting_order = check_sorting_order(y_values)
         if sorting_order == -1:
             print(f"WARNING: {base_name} has sorting order of -1")
-        rows.append([base_name, contour_id, sorting_order])
+        rows.append([base_name, contour_id + 1, sorting_order])
 
     return rows
 
