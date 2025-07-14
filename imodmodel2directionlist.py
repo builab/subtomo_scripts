@@ -26,7 +26,7 @@ def process_mod_file(filepath):
         for contour_num, contour in enumerate(obj.contours):
             sorting_order = check_sorting_order(contour.points)
             if sorting_order == -1:
-		print(f"WARNING: {base_name} has sorting order of -1")
+                print(f"WARNING: {base_name} has sorting order of -1")
             rows.append([base_name, contour_num, sorting_order])
 
     return rows
