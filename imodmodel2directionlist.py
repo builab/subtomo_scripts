@@ -18,7 +18,7 @@ def check_sorting_order(points):
 
 def process_mod_file(filepath):
     """Process one .mod file and return rows."""
-    model = imodmodel.read(filepath)
+    df = imodmodel.read(filepath)
     base_name = os.path.basename(filepath)
     rows = []
 
