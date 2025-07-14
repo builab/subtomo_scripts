@@ -3,36 +3,44 @@
 # Design specific for Warp
 # Huy Bui, McGill, 2025
 
+#!/bin/bash
+
 # === CONFIGURABLE VARIABLES ===
-# Variable is tuned for doublet microtubule in cilia
-FILE_PATTERN="CCDC147C_*_14.00Apx.mrc"
 TEMPLATE="templates/doublet_8nm_14.00Apx.mrc"
 MASK="templates/dmt_mask.mrc"
 RECON_DIR="reconstruction"
 XML_DIR="xml"
 RESULTS_DIR="results"
 ANGLE_LIST="angle_list_filament4.txt"
-PARTICLE_DIAMETER=250
 LOW_PASS=40
-CTF_MODEL="phase-flip"
 GPU_ID=0
 VOLUME_SPLIT="2 2 1"
-
+AMP_CONTRAST=0.07
+SPHERICAL_ABERRATION=2.7
+VOLTAGE=300
 
 # === CREATE RESULTS DIR IF NEEDED ===
 mkdir -p "$RESULTS_DIR"
 
-# === LOOP OVER MATCHING FILES ===
-for MRC_FILE in "$RECON_DIR"/$FILE_PATTERN; do
+# === MATCH FILES: prefix_NUM_pixelsizeApx.mrc ===
+for MRC_FILE in "$RECON_DIR"/*_*_*Apx.mrc; do
     BASENAME=$(basename "$MRC_FILE")
-    
-    if [[ "$BASENAME" =~ CCDC147C_([0-9]+)_14\.00Apx\.mrc ]]; then
-        ID="${BASH_REMATCH[1]}"
-        XML_FILE="$XML_DIR/CCDC147C_${ID}.xml"
-        LOG_FILE="$RESULTS_DIR/CCDC147C_${ID}.log"
 
-        if [[ ! -f "$XML_FILE" ]]; then
-            echo "⚠️  Skipping $BASENAME: XML file not found ($XML_FILE)"
+    # Match pattern: prefix_NUM_PIXELSIZEMAG
+    if [[ "$BASENAME" =~ ^([A-Za-z0-9]+)_([0-9]+)_([0-9]+\.[0-9]+)Apx\.mrc$ ]]; then
+        PREFIX="${BASH_REMATCH[1]}"
+        ID="${BASH_REMATCH[2]}"
+        PIXELSIZE="${BASH_REMATCH[3]}"
+
+        # Related input files
+        TLT_FILE="$XML_DIR/${PREFIX}_${ID}.tlt"
+        DEFOCUS_FILE="$XML_DIR/${PREFIX}_${ID}_defocus.txt"
+        DOSE_FILE="$XML_DIR/${PREFIX}_${ID}_dose.txt"
+        LOG_FILE="$RESULTS_DIR/${PREFIX}_${ID}.log"
+
+        # Validate required metadata files
+        if [[ ! -f "$TLT_FILE" || ! -f "$DEFOCUS_FILE" || ! -f "$DOSE_FILE" ]]; then
+            echo "⚠️  Skipping $BASENAME: Missing one of .tlt, .defocus.txt, or .dose.txt"
             continue
         fi
 
@@ -44,18 +52,25 @@ for MRC_FILE in "$RECON_DIR"/$FILE_PATTERN; do
             -m "$MASK" \
             -v "$MRC_FILE" \
             -d "$RESULTS_DIR" \
-            --particle-diameter "$PARTICLE_DIAMETER" \
-            --warp-xml-file "$XML_FILE" \
+            -a "$TLT_FILE" \
             --low-pass "$LOW_PASS" \
-            --tomogram-ctf-model "$CTF_MODEL" \
+            --defocus "$DEFOCUS_FILE" \
+            --amplitude "$AMP_CONTRAST" \
+            --spherical "$SPHERICAL_ABERRATION" \
+            --voltage "$VOLTAGE" \
+            --tomogram-ctf-model phase-flip \
             -g "$GPU_ID" \
             --volume-split $VOLUME_SPLIT \
             --random-phase-correction \
+            --dose-accumulation "$DOSE_FILE" \
             --angular-search "$ANGLE_LIST" \
+            --per-tilt-weighting \
             &> "$LOG_FILE"
 
         echo "✅ Done: $BASENAME"
         echo
+    else
+        echo "❌ Skipping $BASENAME: Filename doesn't match expected pattern"
     fi
 done
 

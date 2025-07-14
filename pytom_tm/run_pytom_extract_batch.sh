@@ -1,23 +1,24 @@
 #!/bin/bash
 # Script to run pytom_tm extract for every file in the RESULTS_DIR with a specific pattern
-# Design specific for Warp
+# Generic version for any Warp output naming
 # Huy Bui, McGill, 2025
 
-
 # === CONFIGURABLE VARIABLES ===
-# Variable tuned for doublet microtubule
 RESULTS_DIR="results"
 NUM_CANDIDATES=1500
 PARTICLE_DIAMETER=80
-JSON_PATTERN="CCDC147C_*_14.00Apx_job.json"
+JSON_PATTERN="*_job.json"
 
 # === LOOP OVER MATCHING JSON FILES ===
 for JSON_FILE in "$RESULTS_DIR"/$JSON_PATTERN; do
     BASENAME=$(basename "$JSON_FILE")
 
-    if [[ "$BASENAME" =~ CCDC147C_([0-9]+)_14\.00Apx_job\.json ]]; then
-        ID="${BASH_REMATCH[1]}"
-        LOG_FILE="$RESULTS_DIR/CCDC147C_${ID}_extract.log"
+    if [[ "$BASENAME" =~ ^([A-Za-z0-9]+)_([0-9]+)_([0-9]+\.[0-9]+)Apx_job\.json$ ]]; then
+        PREFIX="${BASH_REMATCH[1]}"
+        ID="${BASH_REMATCH[2]}"
+        PIXEL="${BASH_REMATCH[3]}"
+        
+        LOG_FILE="$RESULTS_DIR/${PREFIX}_${ID}_extract.log"
 
         echo "▶️  Running candidate extraction for: $BASENAME"
         echo "Log: $LOG_FILE"
