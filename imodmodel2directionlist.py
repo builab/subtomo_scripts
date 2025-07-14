@@ -5,16 +5,14 @@ import csv
 import imodmodel
 import os
 
-def check_sorting_order(points):
-    """Check if Y values are sorted ascending or descending."""
-    y_values = [p[1] for p in points]
-
-    if y_values == sorted(y_values):
+def check_sorting_order(y_values):
+    """Check if Series of Y is ascending or descending."""
+    if y_values.equals(y_values.sort_values()):
         return 0  # ascending
-    elif y_values == sorted(y_values, reverse=True):
+    elif y_values.equals(y_values.sort_values(ascending=False)):
         return 1  # descending
     else:
-        return -1  # unsorted or equal
+        return -1  # unsorted
 
 def process_mod_file(filepath):
     """Process one .mod file and return rows."""
