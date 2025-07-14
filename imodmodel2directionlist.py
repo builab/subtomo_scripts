@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Script to generate ciliaDirection.csv if the picking has polarity
+# Huy Bui, McGill 2025
 
 import sys
 import csv
