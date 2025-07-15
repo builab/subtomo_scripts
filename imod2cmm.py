@@ -147,16 +147,23 @@ def generate_cmm_file(markers: List[dict], output_filename: str, radius: float, 
 if __name__ == "__main__":
     # Set up argument parser
     parser = argparse.ArgumentParser(description="Convert an IMOD .mod file to a .cmm file.")
-    parser.add_argument("--r", type=float, required=True, help="Radius of the markers and links")
+    parser.add_argument("--r", type=float, default=8, required=True, help="Radius of the markers and links")
     parser.add_argument("--color", type=str, help="Color for markers and links in the format 'r,g,b' (e.g., '1,0.5,1')")
     parser.add_argument("--name", type=str, default="marker_set1", help="Name for the marker set (e.g., 'doublet')")
     parser.add_argument("--i", type=str, required=True, help="Input .mod file")
-    parser.add_argument("--o", type=str, required=True, help="Output .cmm file")
     parser.add_argument("--scatter", action="store_true", default=False,
                         help="If set, do not print any links in the output cmm file.")
     parser.add_argument("--scale_factor", type=float, default=1.0,
                         help="Multiply X to coordinate x, y, z in the cmm file. Default is 1.")
     args = parser.parse_args()
+    
+    
+    # Generate output filename by replacing ".mod" with ".cmm"
+    if args.i.endswith(".mod"):
+        output_cmm = args.i.replace(".mod", ".cmm")
+    else:
+        print("Input file must have a .mod extension.")
+        exit(1)
 
     # Parse the color argument
     color = None
@@ -170,6 +177,7 @@ if __name__ == "__main__":
             exit(1)
 
     # Convert .mod to .txt using model2point
+    # To replace with imodmodel in the future
     intermediate_txt = args.i.replace(".mod", ".txt")
     if not run_model2point(args.i, intermediate_txt):
         print(f"Failed to convert {args.i} to {intermediate_txt}.")
@@ -179,4 +187,4 @@ if __name__ == "__main__":
     markers = parse_input_file(intermediate_txt, args.scale_factor)
 
     # Generate the .cmm file
-    generate_cmm_file(markers, args.o, args.r, color, args.name, args.scatter)
+    generate_cmm_file(markers, output_cmm, args.r, color, args.name, args.scatter)
