@@ -147,7 +147,7 @@ def generate_cmm_file(markers: List[dict], output_filename: str, radius: float, 
 if __name__ == "__main__":
     # Set up argument parser
     parser = argparse.ArgumentParser(description="Convert an IMOD .mod file to a .cmm file.")
-    parser.add_argument("--r", type=float, default=8, required=True, help="Radius of the markers and links")
+    parser.add_argument("--r", type=float, default=8, help="Radius of the markers and links")
     parser.add_argument("--color", type=str, help="Color for markers and links in the format 'r,g,b' (e.g., '1,0.5,1')")
     parser.add_argument("--name", type=str, default="marker_set1", help="Name for the marker set (e.g., 'doublet')")
     parser.add_argument("--i", type=str, required=True, help="Input .mod file")
