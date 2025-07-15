@@ -166,7 +166,7 @@ if __name__ == "__main__":
         exit(1)
         
     if args.name == "marker_set1":
-		marker_name = args.i.replace(".mod", "")
+        marker_name = args.i.replace(".mod", "")
 
 
     # Parse the color argument
