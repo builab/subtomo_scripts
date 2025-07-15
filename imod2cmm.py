@@ -164,6 +164,10 @@ if __name__ == "__main__":
     else:
         print("Input file must have a .mod extension.")
         exit(1)
+        
+    if args.name == "marker_set1":
+		marker_name = args.i.replace(".mod", "")
+
 
     # Parse the color argument
     color = None
@@ -187,4 +191,4 @@ if __name__ == "__main__":
     markers = parse_input_file(intermediate_txt, args.scale_factor)
 
     # Generate the .cmm file
-    generate_cmm_file(markers, output_cmm, args.r, color, args.name, args.scatter)
+    generate_cmm_file(markers, output_cmm, args.r, color, marker_name, args.scatter)
