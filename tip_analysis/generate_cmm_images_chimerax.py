@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # # -*- coding: utf-8 -*-
+# Need to fix the image view
 
 import os
 import glob
@@ -54,7 +55,8 @@ for group_key, file_list in groups.items():
         if os.path.exists(tomo_file):
             # Use quotes around the filename to handle special characters like the plus sign
             run(session, f'open "{tomo_file}"')
-            run(session, 'view')   
+            run(session, 'view')
+            run(session, 'volume #2 style image transparency .5')   
             run(session, f'save {output_tomo_png} width 1000 super 3')
         else:
             print(f"Warning: Tomogram file not found at {tomo_file}")
@@ -71,7 +73,8 @@ for group_key, file_list in groups.items():
                 if os.path.exists(alt_tomo_file):
                     print(f"Found alternative tomogram file: {alt_tomo_file}")
                     run(session, f'open "{alt_tomo_file}"')
-                    run(session, 'view')   
+                    run(session, 'view')
+                    run(session, 'volume #2 style image transparency .5')   
                     run(session, f'save {output_tomo_png} width 1000 super 3')
                     found = True
                     break
