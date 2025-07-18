@@ -12,8 +12,8 @@
 # exclude-newer = "2025-01-01T00:00:00Z"
 # ///
 
-# Script by Huy Bui & DeepSeek
-# running with uv run relionwarp_remove_duplicates.py -i input.star -o output.star -d 45
+# Script by Huy Bui & DeepSeek - Modified to reset shifts
+# running with uv run relionwarp_reset_shift.py -i input.star -o output_resetshift.star
 
 
 from pathlib import Path
@@ -23,14 +23,12 @@ import rich
 import starfile
 import typer
 import pandas as pd
-from sklearn.cluster import DBSCAN
 
 console = rich.console.Console()
 
 
 def cli(
     input_star_file: Path = typer.Option(..., '--input', '-i', help="input star file"),
-    min_distance: float = typer.Option(..., '--min_d', '-d', help="min distance in Angstrom"),
     output_star_file: Path = typer.Option(..., '--output', '-o', help="output star file"),
 ):
     star = starfile.read(input_star_file, always_dict=True)
@@ -47,7 +45,7 @@ def cli(
     console.log('grabbing relevant info...')
 
     xyz = df[['rlnCoordinateX', 'rlnCoordinateY', 'rlnCoordinateZ']].to_numpy()
-    console.log("got shifts from 'rlnCoordinateX', 'rlnCoordinateY', 'rlnCoordinateZ'")
+    console.log("got coordinates from 'rlnCoordinateX', 'rlnCoordinateY', 'rlnCoordinateZ'")
 
     pixel_spacing = df['rlnImagePixelSize'].to_numpy()
     console.log("got pixel spacing from 'rlnImagePixelSize'")
@@ -55,38 +53,43 @@ def cli(
     if all(col in df.columns for col in ['rlnOriginXAngst', 'rlnOriginYAngst', 'rlnOriginZAngst']):
         shifts = df[['rlnOriginXAngst', 'rlnOriginYAngst', 'rlnOriginZAngst']].to_numpy()
         console.log("got shifts from 'rlnOriginXAngst', 'rlnOriginYAngst', 'rlnOriginZAngst'")
+        
+        # convert shifts from angstrom to pixels
+        pixel_spacing = pixel_spacing[:, np.newaxis]  # Shape: (b, 1)
+        shifts_pixels = shifts / pixel_spacing
+        console.log("converted shifts from angstroms to pixels")
+        
+        # Update coordinates by adding the shifts
+        xyz_updated = xyz - shifts_pixels
+        console.log("updated coordinates by adding shifts")
+        
+        # Update the dataframe with new coordinates
+        df['rlnCoordinateX'] = xyz_updated[:, 0]
+        df['rlnCoordinateY'] = xyz_updated[:, 1]
+        df['rlnCoordinateZ'] = xyz_updated[:, 2]
+        console.log("updated coordinate columns in dataframe")
+        
+        # Reset shifts to zero
+        df['rlnOriginXAngst'] = 0.0
+        df['rlnOriginYAngst'] = 0.0
+        df['rlnOriginZAngst'] = 0.0
+        console.log("reset shifts to zero")
+        
     else:
-        shifts = np.zeros(shape=(3,))
-        console.log("no shifts found in 'rlnOriginXAngst', 'rlnOriginYAngst', 'rlnOriginZAngst', setting to 0")
+        console.log("no shifts found in 'rlnOriginXAngst', 'rlnOriginYAngst', 'rlnOriginZAngst', coordinates unchanged")
 
-    # convert shifts to angstrom then apply shifts to calculate absolute particle position
-    pixel_spacing = pixel_spacing[:, np.newaxis]  # Shape: (b, 1)
-    shifts = shifts / pixel_spacing
-    console.log("converted shifts to angstroms")
-    xyz -= shifts
-    console.log("applied shifts to particle positions")
+    # Update the particles table in the star dictionary
+    # Remove the optics columns that were merged
+    optics_columns = star['optics'].columns.tolist()
+    optics_columns.remove('rlnOpticsGroup')  # Keep the group column for merging
+    df_particles_updated = df.drop(columns=optics_columns)
     
-    # Remove duplicates by DeepSeek
-    min_distance = min_distance / 3.33 # Hard code for now
-    db = DBSCAN(eps=min_distance, min_samples=1).fit(xyz)
-
-    # Get cluster labels
-    df_particles = star['particles']
-    df_particles['Cluster'] = db.labels_
-
-    # Keep one representative point per cluster (e.g., first occurrence)
-    df_unique = df_particles.groupby('Cluster').first().reset_index()
-    
-    # Drop cluster column
-    df_unique = df_unique.drop(columns=['Cluster'])
-    console.log("Cluster the origins using DBSCAN")
-
-    star['particles'] = df_unique
+    star['particles'] = df_particles_updated
     
     # write output
     with console.status(f"writing output STAR file {output_star_file}", spinner="arc"):
         starfile.write(star, output_star_file)
-    console.log(f"Output written to {output_star_file}")
+    console.log(f"Output reset shift written to {output_star_file}")
 
 
 if __name__ == "__main__":

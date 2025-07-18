@@ -23,6 +23,7 @@ output_star="relion/coord_96nm.star"
 coords_angpix=8.48
 output_angpix=8.48
 box=168
+n_tilts=32 # This makes it safer
 diameter=1000
 output_processing="warp_tiltseries/particleseries" # If you want different output folder
 
@@ -36,6 +37,7 @@ WarpTools ts_export_particles \
   --output_angpix "$output_angpix" \
   --box "$box" \
   --diameter "$diameter" \
+  --n_tilts "$n_tilts" \
   --output_processing "$output_processing" \
   --relative_output_paths \
   --2d \
