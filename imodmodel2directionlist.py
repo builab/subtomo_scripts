@@ -20,6 +20,8 @@ def process_mod_file(filepath):
     """Process one .mod file and return rows."""
     df = imodmodel.read(filepath)
     base_name = os.path.basename(filepath)
+    base_name = os.path.splitext(base_name)[0]
+
     rows = []
 
     # Filter object_id == 0
@@ -30,7 +32,7 @@ def process_mod_file(filepath):
         y_values = contour_points["y"].reset_index(drop=True)
         sorting_order = check_sorting_order(y_values)
         if sorting_order == -1:
-            print(f"WARNING: {base_name} has sorting order of -1")
+            print(f"WARNING: {base_name} contour {contour_id} has sorting order of -1")
         rows.append([base_name, contour_id + 1, sorting_order])
 
     return rows
