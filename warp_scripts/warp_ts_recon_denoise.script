@@ -22,7 +22,7 @@ settings="warp_tiltseries.settings"
 
 # Variables to edit
 use_warp_denoise=false
-angpix=16 # Reconstruction pixel size for denoising should be ~12-16 Angstrom
+angpix=14 # Reconstruction pixel size for denoising should be ~12-16 Angstrom
 # If you want to do 1 tomogram only, otherwise, put empty quote ""
 input_data="tomostar/SPEF1MT2_018.tomostar"
 dont_invert=true # Set to true to NOT invert contrast
