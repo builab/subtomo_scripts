@@ -51,6 +51,7 @@ def cli(
 
     pixel_spacing = df['rlnImagePixelSize'].to_numpy()
     console.log("got pixel spacing from 'rlnImagePixelSize'")
+    
 
     if all(col in df.columns for col in ['rlnOriginXAngst', 'rlnOriginYAngst', 'rlnOriginZAngst']):
         shifts = df[['rlnOriginXAngst', 'rlnOriginYAngst', 'rlnOriginZAngst']].to_numpy()
@@ -62,12 +63,12 @@ def cli(
     # convert shifts to angstrom then apply shifts to calculate absolute particle position
     pixel_spacing = pixel_spacing[:, np.newaxis]  # Shape: (b, 1)
     shifts = shifts / pixel_spacing
-    console.log("converted shifts to angstroms")
+    console.log("converted shifts to pixel")
     xyz -= shifts
     console.log("applied shifts to particle positions")
     
     # Remove duplicates by DeepSeek
-    min_distance = min_distance / 3.33 # Hard code for now
+    min_distance = min_distance / pixel_spacing
     db = DBSCAN(eps=min_distance, min_samples=1).fit(xyz)
 
     # Get cluster labels
