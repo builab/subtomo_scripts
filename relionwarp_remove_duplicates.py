@@ -13,7 +13,7 @@
 # exclude-newer = "2025-01-01T00:00:00Z"
 # ///
 
-# Script by Huy Bui & DeepSeek
+# Script by Huy Bui & DeepSeek & Claude
 # Modified to remove duplicates only within the same rlnTomoName groups
 # running with uv run relionwarp_remove_duplicates.py -i input.star -o output.star -d 45
 
@@ -68,7 +68,6 @@ def remove_duplicates_in_group(group_df, min_distance_pixels, group_name):
     console.log(f"  {group_name}: {len(group_df)} -> {len(unique_df)} particles")
     
     return unique_df
-
 
 def cli(
     input_star_file: Path = typer.Option(..., '--input', '-i', help="input star file"),
