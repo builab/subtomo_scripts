@@ -60,8 +60,11 @@ def remove_duplicates_in_group(group_df, min_distance_pixels, group_name):
     
     # Keep one representative point per cluster (first occurrence)
     unique_df = temp_df.groupby('Cluster').first().reset_index(drop=True)
-    unique_df = unique_df.drop(columns=['Cluster'])
-    
+
+    # Remove cluster column if it exists
+    if 'Cluster' in unique_df.columns:
+        unique_df = unique_df.drop(columns=['Cluster'])
+            
     console.log(f"  {group_name}: {len(group_df)} -> {len(unique_df)} particles")
     
     return unique_df
