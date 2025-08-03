@@ -82,6 +82,7 @@ def cli(
     # Drop cluster column
     df_unique = df_unique.drop(columns=['Cluster'])
     console.log("Cluster the origins using DBSCAN")
+    console.log(f"found {len(df_unique)} unique clusters")
 
     star['particles'] = df_unique
     
