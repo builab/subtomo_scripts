@@ -3,7 +3,6 @@
 # Multiply origin with pixelSize
 # Eliminate .tomostar from rlnTomoName
 # Also, deal with no optics header now, just need --angpix
-# Update to reset shift in calculation
 # HB, McGill, 2025. Style coming from recenter_3d.py by Alister Burt
 
 import numpy as np
@@ -31,30 +30,20 @@ def modify_star(input_star_file, output_star_file, angpix=None):
     xyz = df[['rlnCoordinateX', 'rlnCoordinateY', 'rlnCoordinateZ']].to_numpy()
     print("got binned origin in pixel from 'rlnCoordinateX', 'rlnCoordinateY', 'rlnCoordinateZ'")
     
-
-    shifts = df[['rlnOriginXAngst', 'rlnOriginYAngst', 'rlnOriginZAngst']].to_numpy()
-    print("got shifts from 'rlnOriginXAngst', 'rlnOriginYAngst', 'rlnOriginZAngst'")
-    
     # Read pixel spacing from star file
     try:
         pixel_spacing = df['rlnImagePixelSize'].to_numpy()[:, np.newaxis]  # Shape: (b, 1)
         print("Got pixel spacing from 'rlnImagePixelSize'")
-      
+        
         tomopixel_spacing = df['rlnTomoTiltSeriesPixelSize'].to_numpy()[:, np.newaxis]  # Shape: (b, 1)
         print("Got pixel spacing from 'rlnTomoTiltSeriesPixelSize'")
         
         new_origins = xyz * pixel_spacing / tomopixel_spacing
-        
-        shifts_pixels = shifts / pixel_spacing * tomopixel_spacing
-                
-        # Update coordinates by adding the shifts
-        new_origins = new_origins - shifts_pixels
-
     except KeyError:
         # Use provided angpix value if specified
         if angpix is not None:
             print(f"Using provided angpix value: {angpix}")
-            new_origins = xyz * angpix - shifts
+            new_origins = xyz * angpix
         else:
             print("ERROR! Missing pixel size columns and no --angpix provided. Cannot proceed.")
             sys.exit(1)
@@ -62,10 +51,6 @@ def modify_star(input_star_file, output_star_file, angpix=None):
     print('calculated particle position in unbinned tomogram')
     
     star['particles'][['rlnCoordinateX', 'rlnCoordinateY', 'rlnCoordinateZ']] = new_origins
-    # Reset shifts to zero
-    star['particles']['rlnOriginXAngst'] = 0.0
-    star['particles']['rlnOriginYAngst'] = 0.0
-    star['particles']['rlnOriginZAngst'] = 0.0
     print("updated shift values in 'rlnCoordinateX','rlnCoordinateY', 'rlnCoordinateZ'")
     
     # Remove .tomostar
