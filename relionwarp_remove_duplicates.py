@@ -50,6 +50,7 @@ def cli(
     console.log("got shifts from 'rlnCoordinateX', 'rlnCoordinateY', 'rlnCoordinateZ'")
 
     pixel_spacing = df['rlnImagePixelSize'].to_numpy()
+    angpix = pixel_spacing[0]
     console.log("got pixel spacing from 'rlnImagePixelSize'")
     
 
@@ -68,7 +69,6 @@ def cli(
     console.log("applied shifts to particle positions")
     
     # Remove duplicates by DeepSeek
-    angpix = pixel_spacing(1, 1)
     min_distance = min_distance / angpix
     db = DBSCAN(eps=min_distance, min_samples=1).fit(xyz)
 
