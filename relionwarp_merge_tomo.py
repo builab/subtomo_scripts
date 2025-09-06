@@ -3,40 +3,54 @@ import argparse
 import pandas as pd
 import starfile
 
-# Script to merge tomo star files from star files from two datasets (no overlapped tomo name)
-
 def load_star(path):
-    """Read a RELION .star file with only data_global block"""
-    d = starfile.read(path)
-    try:
-        global_block = d["global"]
-    except KeyError:
-        raise RuntimeError(f"Missing data_global block in {path}")
-    return global_block
+    """Read any RELION .star file into a dict of DataFrames."""
+    return starfile.read(path)
 
 def merge_stars(fileA, fileB, outfile):
-    globA = load_star(fileA)
-    globB = load_star(fileB)
+    dA = load_star(fileA)
+    dB = load_star(fileB)
+
+    out_dict = {}
 
     # --- merge global ---
-    global_all = pd.concat([globA, globB], ignore_index=True)
-    global_all = global_all.reset_index(drop=True)
+    if "global" not in dA or "global" not in dB:
+        raise RuntimeError("Both files must contain data_global block")
+
+    globA = dA["global"]
+    globB = dB["global"]
+
+    global_all = pd.concat([globA, globB], ignore_index=True).reset_index(drop=True)
 
     # Reassign new sequential opticsGroupName
     new_names = [f"opticsGroup{i}" for i in range(1, len(global_all) + 1)]
     global_all["rlnOpticsGroupName"] = new_names
 
-    # --- output STAR ---
-    out_dict = {
-        "global": global_all
-    }
+    out_dict["global"] = global_all
+
+    # --- copy all other blocks (no overlap, just append if same name) ---
+    for key, val in dA.items():
+        if key != "global":
+            out_dict[f"data_{key}"] = val
+    for key, val in dB.items():
+        if key != "global":
+            # If block name already exists, stack them
+            if f"data_{key}" in out_dict:
+                out_dict[f"data_{key}"] = pd.concat(
+                    [out_dict[f"data_{key}"], val], ignore_index=True
+                )
+            else:
+                out_dict[f"data_{key}"] = val
+
+    # --- write output ---
     starfile.write(out_dict, outfile, overwrite=True)
 
     print(f"Merged {fileA} + {fileB} → {outfile}")
-    print(f"Total optics groups: {len(global_all)}")
+    print(f"Total global entries: {len(global_all)}")
+    print(f"Blocks written: {list(out_dict.keys())}")
 
 if __name__ == "__main__":
-    ap = argparse.ArgumentParser(description="Merge two RELION global STAR files")
+    ap = argparse.ArgumentParser(description="Merge two RELION STARs with data_global remapped")
     ap.add_argument("--input", "-i", required=True, help="First STAR file")
     ap.add_argument("--input2", "-i2", required=True, help="Second STAR file")
     ap.add_argument("--output", "-o", required=True, help="Output STAR file")
