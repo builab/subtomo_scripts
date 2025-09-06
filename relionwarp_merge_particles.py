@@ -3,6 +3,8 @@ import argparse
 import pandas as pd
 import starfile
 
+# Script to merge particle star files from two datasets (no overlapped tomo name)
+
 def load_star(path):
     """Read a RELION .star file with 3 blocks:
        data_general, data_optics, data_particles
