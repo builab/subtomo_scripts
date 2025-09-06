@@ -49,9 +49,9 @@ def merge_stars(fileA, fileB, outfile):
 
     # --- output STAR ---
     out_dict = {
-        "data_general": genA,       # keep general from fileA
-        "data_optics": optics_all,
-        "data_particles": particles_all,
+        "general": genA,       # keep general from fileA
+        "optics": optics_all,
+        "particles": particles_all,
     }
     starfile.write(out_dict, outfile, overwrite=True)
 

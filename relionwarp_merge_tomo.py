@@ -28,7 +28,7 @@ def merge_stars(fileA, fileB, outfile):
 
     # --- output STAR ---
     out_dict = {
-        "data_global": global_all
+        "global": global_all
     }
     starfile.write(out_dict, outfile, overwrite=True)
 
