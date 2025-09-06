@@ -31,16 +31,16 @@ def merge_stars(fileA, fileB, outfile):
     # --- copy all other blocks (no overlap, just append if same name) ---
     for key, val in dA.items():
         if key != "global":
-            out_dict[f"data_{key}"] = val
+            out_dict[f"{key}"] = val
     for key, val in dB.items():
         if key != "global":
             # If block name already exists, stack them
-            if f"data_{key}" in out_dict:
-                out_dict[f"data_{key}"] = pd.concat(
-                    [out_dict[f"data_{key}"], val], ignore_index=True
+            if f"{key}" in out_dict:
+                out_dict[f"{key}"] = pd.concat(
+                    [out_dict[f"{key}"], val], ignore_index=True
                 )
             else:
-                out_dict[f"data_{key}"] = val
+                out_dict[f"{key}"] = val
 
     # --- write output ---
     starfile.write(out_dict, outfile, overwrite=True)
