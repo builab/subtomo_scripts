@@ -18,6 +18,8 @@ VOLUME_SPLIT="2 2 1"
 AMP_CONTRAST=0.07
 SPHERICAL_ABERRATION=2.7
 VOLTAGE=300
+Z-AXIS-ROTATIONAL-SYMMETRY=14
+
 
 # === CREATE RESULTS DIR IF NEEDED ===
 mkdir -p "$RESULTS_DIR"
@@ -65,6 +67,7 @@ for MRC_FILE in "$RECON_DIR"/*_*_*Apx.mrc; do
             --dose-accumulation "$DOSE_FILE" \
             --angular-search "$ANGLE_LIST" \
             --per-tilt-weighting \
+            --z-axis-rotational-symmetry "$Z-AXIS-ROTATIONAL-SYMMETRY" \
             &> "$LOG_FILE"
 
         echo "✅ Done: $BASENAME"
