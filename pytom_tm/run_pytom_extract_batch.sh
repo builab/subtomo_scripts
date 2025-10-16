@@ -19,7 +19,7 @@ for JSON_FILE in "$RESULTS_DIR"/$JSON_PATTERN; do
         PIXEL="${BASH_REMATCH[3]}"
         
         LOG_FILE="$RESULTS_DIR/${PREFIX}_${ID}_extract.log"
-
+        echo "$(date +"%H:%M:%S")"
         echo "▶️  Running candidate extraction for: $BASENAME"
         echo "Log: $LOG_FILE"
 

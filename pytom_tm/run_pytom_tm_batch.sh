@@ -45,7 +45,7 @@ for MRC_FILE in "$RECON_DIR"/*_*_*Apx.mrc; do
             echo "⚠️  Skipping $BASENAME: Missing one of .tlt, .defocus.txt, or .dose.txt"
             continue
         fi
-
+        echo "$(date +"%H:%M:%S")"
         echo "▶️  Running template matching for: $BASENAME"
         echo "Log: $LOG_FILE"
 
