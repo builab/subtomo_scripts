@@ -14,7 +14,7 @@ Last updated Oct 30, 2025
 script to process segmented tomogram. 
 operations include bounding box filtering, island direction filtering, erosion with component voxel size filtering
 
-@author: Khan Bao, Builab
+@author: Khan Bao, Builab@McGill
 """
 
 
