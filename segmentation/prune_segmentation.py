@@ -15,6 +15,32 @@ script to process segmented tomogram.
 operations include bounding box filtering, island direction filtering, erosion with component voxel size filtering
 
 @author: Khan Bao, Builab@McGill
+
+General command syntax: 
+python3 prune_segmentation.py operation --i segmented.mrc --o pruned.mrc --operation_specific_arguments
+*underlined/italic values need to be replaced
+Masking using IMOD model
+In 3dmod, go to the widest part of the sample. 
+Draw a model around the entire sample, make sure to start and end around the same point
+Save model
+
+Your command should then be like:
+python3 prune_segmentation.py mask --i segmented.mrc --o pruned.mrc --modmaskdir maskingmodel
+Bounding box ratio pruning 
+python3 prune_segmentation.py boundingbox --i segmented.mrc --o pruned.mrc --minasp 5.0
+Direction pruning
+Directly guess cilia angle:
+python3 prune_segmentation.py direction --i segmented.mrc --o pruned.mrc --angle 45 --anglerange 20
+
+Suggested modification:
+In 3dmod, go to the middle of the cilia
+draw a model (Tick Model, then middle mouse of the end & the tip of the cilia)
+save model
+
+Then your command would be like:
+python3 prune_segmentation.py direction --i segmented.mrc --o pruned.mrc --modangledir anglemodel --anglerange 20
+Erosion pruning
+python3 prune_segmentation.py erosion --i segmented.mrc --o pruned.mrc --iterate 2 --minvoxel 100000
 """
 
 
