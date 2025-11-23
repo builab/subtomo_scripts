@@ -3,6 +3,10 @@ import mrcfile
 from scipy.spatial import ConvexHull, Delaunay
 import argparse
 
+'''
+@author: Khan Bao, Builab@McGill
+'''
+
 def main():
     parser = argparse.ArgumentParser(description='create mask mrc file from segmented and cleaned tomogram')
     parser.add_argument('--i',
