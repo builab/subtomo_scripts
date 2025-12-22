@@ -60,7 +60,7 @@ for INPUT_DIR in $INPUT_DIRS; do
 
       # Rename original and processed files
       mv "$file" "$DIRNAME/${BASENAME}.mrc~"
-      mv "${DIRNAME}/$OUTPUT_FILE" "$DIRNAME/$file"
+      mv "${DIRNAME}/$OUTPUT_FILE" "$DIRNAME/${BASENAME}.mrc"
     ) &
   done
 done
