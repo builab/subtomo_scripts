@@ -3,11 +3,9 @@
 # Design specific for Warp
 # Huy Bui, McGill, 2025
 
-#!/bin/bash
-
 # === CONFIGURABLE VARIABLES ===
-TEMPLATE="templates/doublet_8nm_14.00Apx.mrc"
-MASK="templates/dmt_mask.mrc"
+TEMPLATE="templates/doublet_template_8nm_14.00Apx.mrc"
+MASK="templates/mask_doublet_8nm_14.00Apx.mrc"
 RECON_DIR="reconstruction"
 XML_DIR="xml"
 RESULTS_DIR="results"
@@ -18,7 +16,7 @@ VOLUME_SPLIT="2 2 1"
 AMP_CONTRAST=0.07
 SPHERICAL_ABERRATION=2.7
 VOLTAGE=300
-Z-AXIS-ROTATIONAL-SYMMETRY=14
+Z-AXIS-ROTATIONAL-SYMMETRY=1
 
 
 # === CREATE RESULTS DIR IF NEEDED ===
