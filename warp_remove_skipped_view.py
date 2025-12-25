@@ -62,7 +62,7 @@ def main(xml_dir, xml_pattern, backup_dir, tiltstack_dir, all_true, n_tilts, max
             continue
 
         data_str = ''.join(lines[view_line_idx:])
-        df = pd.read_csv(io.StringIO(data_str), delim_whitespace=True)
+        df = pd.read_csv(io.StringIO(data_str), sep=r's+')
         views_in_log = set(df['view'].unique())
         tilts_in_log = df['tilt'].tolist()
 
