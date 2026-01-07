@@ -69,13 +69,22 @@ def assign_random_subsets(df: pd.DataFrame) -> pd.Series:
     
     for tomo_idx, tomo_name in enumerate(tomo_names):
         tomo_mask = df['rlnTomoName'] == tomo_name
+        # Get unique tube IDs for this tomogram
         tube_ids = sorted(df.loc[tomo_mask, 'rlnHelicalTubeID'].unique())
         
         for tube_id in tube_ids:
             tube_mask = (df['rlnTomoName'] == tomo_name) & (df['rlnHelicalTubeID'] == tube_id)
-            # Pattern alternates by tomo and tube to balance counts
-            subset_value = (1 if int(tube_id) % 2 == 1 else 2) if tomo_idx % 2 == 0 else (2 if int(tube_id) % 2 == 1 else 1)
-            random_subsets.loc[tube_indices := df.index[tube_mask]] = subset_value
+            
+            # Determine subset value (alternating pattern)
+            if tomo_idx % 2 == 0:
+                subset_value = 1 if int(tube_id) % 2 == 1 else 2
+            else:
+                subset_value = 2 if int(tube_id) % 2 == 1 else 1
+            
+            # Separate the index retrieval from the assignment to avoid SyntaxError
+            tube_indices = df.index[tube_mask]
+            random_subsets.loc[tube_indices] = subset_value
+            
     return random_subsets
 
 def main():
