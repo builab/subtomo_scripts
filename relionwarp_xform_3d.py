@@ -12,6 +12,8 @@
 # exclude-newer = "2025-01-01T00:00:00Z"
 # ///
 
+# Update 2026/01/07 with protomer option for symexpansion
+
 from pathlib import Path
 from typing import Tuple, Optional
 
