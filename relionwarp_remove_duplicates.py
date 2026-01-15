@@ -16,7 +16,7 @@
 # Script by Huy Bui & DeepSeek & Claude
 # Modified to remove duplicates only within the same rlnTomoName groups
 # running with uv run relionwarp_remove_duplicates.py -i input.star -o output.star -d 45
-
+# 2026/01/15 not resetshift anymore
 
 from pathlib import Path
 
@@ -30,10 +30,17 @@ from sklearn.cluster import DBSCAN
 console = rich.console.Console()
 
 
-def remove_duplicates_in_group(group_df, min_distance_pixels, group_name):
-    """Remove duplicates within a single tomogram group"""
+def remove_duplicates_in_group(group_df, original_group_df, min_distance_pixels, group_name):
+    """Remove duplicates within a single tomogram group
+    
+    Args:
+        group_df: DataFrame with merged optics for calculations
+        original_group_df: Original DataFrame to preserve exact values
+        min_distance_pixels: Minimum distance threshold in pixels
+        group_name: Name of the tomogram group
+    """
     if len(group_df) <= 1:
-        return group_df
+        return original_group_df
     
     # Get coordinates for this group
     xyz = group_df[['rlnCoordinateX', 'rlnCoordinateY', 'rlnCoordinateZ']].to_numpy()
@@ -54,16 +61,16 @@ def remove_duplicates_in_group(group_df, min_distance_pixels, group_name):
     # Perform clustering
     db = DBSCAN(eps=min_distance_pixels, min_samples=1).fit(xyz)
     
-    # Create a temporary dataframe with cluster labels
-    temp_df = group_df.copy()
-    temp_df['Cluster'] = db.labels_
+    # Get indices of first occurrence in each cluster
+    unique_indices = []
+    seen_clusters = set()
+    for idx, cluster_id in enumerate(db.labels_):
+        if cluster_id not in seen_clusters:
+            unique_indices.append(idx)
+            seen_clusters.add(cluster_id)
     
-    # Keep one representative point per cluster (first occurrence)
-    unique_df = temp_df.groupby('Cluster').first().reset_index(drop=True)
-
-    # Remove cluster column if it exists
-    if 'Cluster' in unique_df.columns:
-        unique_df = unique_df.drop(columns=['Cluster'])
+    # Select from ORIGINAL dataframe using these indices
+    unique_df = original_group_df.iloc[unique_indices].reset_index(drop=True)
             
     console.log(f"  {group_name}: {len(group_df)} -> {len(unique_df)} particles")
     
@@ -81,6 +88,10 @@ def cli(
         console.log("expected RELION 3.1+ style STAR file containing particles and optics blocks", style="bold red")
         raise typer.Exit(1)
 
+    # Keep original particles dataframe separate
+    original_particles = star['particles'].copy()
+    
+    # Create merged dataframe for calculations only
     df = star['particles'].merge(star['optics'], on='rlnOpticsGroup')
     console.log("optics table merged")
     console.log(f"{len(df)} particles found")
@@ -89,9 +100,11 @@ def cli(
     if 'rlnTomoName' not in df.columns:
         console.log("rlnTomoName column not found, treating all particles as one group", style="bold yellow")
         tomo_groups = [('all_particles', df)]
+        original_groups = [('all_particles', original_particles)]
     else:
         # Group by tomogram name
         tomo_groups = list(df.groupby('rlnTomoName'))
+        original_groups = list(original_particles.groupby('rlnTomoName'))
         console.log(f"found {len(tomo_groups)} tomogram groups")
 
     # Get pixel spacing for distance conversion
@@ -103,20 +116,20 @@ def cli(
     console.log("removing duplicates within each tomogram group...")
     processed_groups = []
     
+    # Create dict for easy lookup of original groups
+    original_groups_dict = {name: group for name, group in original_groups}
+    
     for tomo_name, group_df in tomo_groups:
-        unique_group = remove_duplicates_in_group(group_df, min_distance_pixels, tomo_name)
+        original_group_df = original_groups_dict[tomo_name]
+        unique_group = remove_duplicates_in_group(group_df, original_group_df, min_distance_pixels, tomo_name)
         processed_groups.append(unique_group)
     
-    # Combine all processed groups
-    df_combined = pd.concat(processed_groups, ignore_index=True)
-    
-    # Get the original particle columns (without the merged optics columns)
-    original_columns = star['particles'].columns
-    df_output = df_combined[original_columns]
+    # Combine all processed groups - these are from original particles
+    df_output = pd.concat(processed_groups, ignore_index=True)
     
     console.log(f"total particles after duplicate removal: {len(df_output)}")
     
-    # Update the star file
+    # Update the star file with original values
     star['particles'] = df_output
     
     # write output
