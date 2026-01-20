@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 # Script to generate angle_list for pytom_match_pick
 # Now supports tilt and psi ranges: --tilt_limit min max, --psi_limit min max
-# --tilt_limit min max, --psi_limit min max
-# This doesn't work yet unfortunately :(
+# Outputs symmetric version and two asymmetric versions (positive and negative ends)
 
 import numpy as np
 import healpy as hp
@@ -43,9 +42,6 @@ def main():
     parser.add_argument("--psi_limit", nargs=2, type=float, default=None,
                         help="Psi (Z2) range: min max (degrees)")
 
-    parser.add_argument("--asym_psi", action="store_true",
-                    help="Do NOT generate symmetric negative psi range")
-
     parser.add_argument("--o", type=str, required=True, help="Output filename.")
     args = parser.parse_args()
 
@@ -70,47 +66,62 @@ def main():
         def in_range(psi, lo, hi):
             return lo <= psi <= hi
 
-        asym_list = []
+        asym_positive = []  # Positive end (original range)
+        asym_negative = []  # Negative end (opposite cone)
         symmetric_list = []
 
         for z1, x, psi in angle_list:
             # Normalize psi into [-pi, pi]
             psi_norm = (psi + np.pi) % (2 * np.pi) - np.pi
 
-            # --- Asymmetric: only the given range ---
-            keep_asym = in_range(psi_norm, psi_min, psi_max)
+            # --- Positive end: only the given range ---
+            keep_positive = in_range(psi_norm, psi_min, psi_max)
 
-            # --- Symmetric: include +/- cone ---
-            keep_sym = keep_asym or in_range(psi_norm, psi_min - np.pi, psi_max - np.pi)
+            # --- Negative end: opposite cone ---
+            keep_negative = in_range(psi_norm, psi_min - np.pi, psi_max - np.pi)
 
-            if keep_asym:
-                asym_list.append((z1, x, psi))
+            # --- Symmetric: include both cones ---
+            keep_sym = keep_positive or keep_negative
+
+            if keep_positive:
+                asym_positive.append((z1, x, psi))
+
+            if keep_negative:
+                asym_negative.append((z1, x, psi))
 
             if keep_sym:
                 symmetric_list.append((z1, x, psi))
 
-        # Replace original angle_list with symmetric version
+        # Use filtered lists
         angle_list = symmetric_list
     else:
-        asym_list = angle_list.copy()
+        # If no psi limit, all three are the same
+        asym_positive = angle_list.copy()
+        asym_negative = angle_list.copy()
         symmetric_list = angle_list.copy()
 
     # ---- WRITE OUTPUT FILES ----
-    # 1. Symmetric version
+    # 1. Symmetric version (both cones)
     with open(args.o, "w") as f:
         for z1, x, z2 in symmetric_list:
             f.write(f"{z1:.6f} {x:.6f} {z2:.6f}\n")
 
-    # 2. Asymmetric version
-    asym_name = args.o.replace(".txt", "_asym.txt")
-    with open(asym_name, "w") as f:
-        for z1, x, z2 in asym_list:
+    # 2. Asymmetric positive (original range)
+    asym_pos_name = args.o.replace(".txt", "_asym_positive.txt")
+    with open(asym_pos_name, "w") as f:
+        for z1, x, z2 in asym_positive:
+            f.write(f"{z1:.6f} {x:.6f} {z2:.6f}\n")
+
+    # 3. Asymmetric negative (opposite cone)
+    asym_neg_name = args.o.replace(".txt", "_asym_negative.txt")
+    with open(asym_neg_name, "w") as f:
+        for z1, x, z2 in asym_negative:
             f.write(f"{z1:.6f} {x:.6f} {z2:.6f}\n")
 
     print(f"Wrote {len(symmetric_list)} symmetric angles to {args.o}")
-    print(f"Wrote {len(asym_list)} asymmetric angles to {asym_name}")
+    print(f"Wrote {len(asym_positive)} asymmetric (positive) angles to {asym_pos_name}")
+    print(f"Wrote {len(asym_negative)} asymmetric (negative) angles to {asym_neg_name}")
 
 
 if __name__ == "__main__":
     main()
-
