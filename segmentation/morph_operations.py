@@ -5,10 +5,6 @@ import numpy as np
 from tqdm import tqdm
 from skimage.morphology import binary_erosion, binary_dilation
 
-'''
-@author: Khan Bao, Builab@McGill
-'''
-
 
 def erosion(volume, iterate):
     processed = np.zeros_like(volume, dtype=bool)

@@ -8,9 +8,6 @@ from skimage.measure import EllipseModel
 from skimage.draw import ellipse
 from scipy.spatial import ConvexHull
 
-'''
-@author: Khan Bao, Builab@McGill
-'''
 
 def principal_axis_angle(volume):
     pts = np.column_stack(np.nonzero(volume))
