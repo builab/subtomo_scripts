@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # Script to generate angle_list for pytom_match_pick
 # Now supports tilt and psi ranges: --tilt_limit min max, --psi_limit min max
+# --tilt_limit min max, --psi_limit min max
+# This doesn't work yet unfortunately :(
 
 import numpy as np
 import healpy as hp
