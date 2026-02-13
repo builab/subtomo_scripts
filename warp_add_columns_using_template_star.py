@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+# Script to add column to Warp from a template star file
+# This allows adding rlnHelicalTubeID, rlnOriginalIndex or rlnProtomerIndex
+
 import argparse
 import pandas as pd
 import numpy as np
