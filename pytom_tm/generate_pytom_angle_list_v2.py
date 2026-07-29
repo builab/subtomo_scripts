@@ -67,26 +67,23 @@ def get_axis_from_model(model_path: str, object_id: int = None, contour_id: int 
     return axis
 
 
-def axis_to_cone_centers(axis: np.ndarray) -> list[tuple[float, float]]:
+def axis_to_cone_center(axis: np.ndarray) -> tuple[float, float]:
     """
-    Convert a 3D axis vector into the (theta, phi) direction(s), in degrees,
+    Convert a 3D axis vector into the (theta, phi) direction, in degrees,
     that the pointing direction (Z1=phi, X=theta) of the angle list should be
-    restricted around to form a true cone around the axis.
+    restricted around to form a cone around the axis.
 
     The pointing direction of a candidate orientation is a point on the unit
     sphere given by (theta, phi) -- exactly like the healpix grid used to
-    build angle_list. A cone around a *directed* vector v is just the set of
-    points within some angular radius of v's own (theta, phi). Since an IMOD
-    axis is a line (no arrowhead), both v and -v are equally valid, so two
-    cone centers are returned: v's direction and its antipode (-v).
+    build angle_list. A cone around the axis vector (points 1 -> 2 in the
+    IMOD model) is just the set of points within some angular radius of the
+    axis's own (theta, phi).
     """
     dx, dy, dz = axis
     r = np.linalg.norm(axis)
     theta_v = np.degrees(np.arccos(np.clip(dz / r, -1.0, 1.0)))
     phi_v = np.degrees(np.arctan2(dy, dx)) % 360
-    center = (theta_v, phi_v)
-    antipode = (180 - theta_v, (phi_v + 180) % 360)
-    return [center, antipode]
+    return theta_v, phi_v
 
 
 def circular_diff_deg(a: float, b: float) -> float:
@@ -108,7 +105,7 @@ def main():
     parser.add_argument("--a", type=float, required=True, help="Angular increment in degrees.")
     parser.add_argument("--tilt_limit", type=float, default=None, help="Limit X (theta) to a band of this half-width around the reference tilt (in degrees).")
     parser.add_argument("--psi_limit", type=float, default=None, help="Limit Z2 (psi) to a band of this half-width around the reference psi (in degrees).")
-    parser.add_argument("--imod_model", type=str, default=None, help="Path to a 2-point IMOD model file (.mod) defining a filament axis. If given, --tilt_limit becomes the half-angle of a double cone (pointing direction within tilt_limit degrees of the axis or its 180-degree flip) instead of a band around the xy-plane. If omitted, the script behaves as before (tilt centered at 90 deg / in-plane).")
+    parser.add_argument("--imod_model", type=str, default=None, help="Path to a 2-point IMOD model file (.mod) defining a filament axis (direction: point 1 -> point 2). If given, --tilt_limit becomes the half-angle of a cone (pointing direction within tilt_limit degrees of the axis) instead of a band around the xy-plane. If omitted, the script behaves as before (tilt centered at 90 deg / in-plane).")
     parser.add_argument("--object_id", type=int, default=None, help="Restrict the IMOD model to this object_id, if the model contains more than one object/contour.")
     parser.add_argument("--contour_id", type=int, default=None, help="Restrict the IMOD model to this contour_id, if the model contains more than one object/contour.")
     parser.add_argument("--o", type=str, required=True, help="Output filename.")
@@ -130,23 +127,18 @@ def main():
         # With a known axis, the pointing direction (Z1=phi, X=theta) itself
         # should be restricted to a true cone around the axis -- i.e. within
         # tilt_limit degrees (great-circle distance) of the axis direction,
-        # not just a band on theta with phi left free. Since the axis is a
-        # line (no arrowhead), both the axis and its 180-degree flip define
-        # equally valid cone centers (a "double cone").
+        # not just a band on theta with phi left free.
         axis = get_axis_from_model(args.imod_model, args.object_id, args.contour_id)
-        cone_centers = axis_to_cone_centers(axis)
+        theta_c, phi_c = axis_to_cone_center(axis)
         logging.info(
-            f"Derived cone centers from IMOD model '{args.imod_model}' "
-            f"(theta, phi) in deg: {cone_centers}"
+            f"Derived cone center from IMOD model '{args.imod_model}' "
+            f"(theta, phi) = ({theta_c:.4f}, {phi_c:.4f}) deg"
         )
 
         if args.tilt_limit is not None:
             angle_list = [
                 a for a in angle_list
-                if min(
-                    angular_distance_deg(np.degrees(a[1]), np.degrees(a[0]), c[0], c[1])
-                    for c in cone_centers
-                ) <= args.tilt_limit
+                if angular_distance_deg(np.degrees(a[1]), np.degrees(a[0]), theta_c, phi_c) <= args.tilt_limit
             ]
     else:
         # Original behavior: theta (X) restricted to a band around the
