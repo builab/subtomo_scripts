@@ -69,20 +69,26 @@ def get_axis_from_model(model_path: str, object_id: int = None, contour_id: int 
 
 def axis_to_reference_angles(axis: np.ndarray) -> tuple[float, float]:
     """
-    Convert an (undirected) 3D axis vector into the reference angles used to
-    center the tilt and psi filters, in degrees.
+    Convert a 3D axis vector into the reference angles used to center the
+    tilt and psi filters, in degrees.
 
-    theta_ref: colatitude of the axis (0 = along Z, 90 = in the xy-plane).
-               Since the axis has no direction, both theta and 180-theta are
-               equally valid; we return one of the two (theta_ref <= 90) and
-               let the caller also test the supplementary angle.
+    theta_ref: reference colatitude for the tilt (X) filter. The angle an
+               (undirected) line makes with the xy-plane is a single,
+               well-defined value in [0, 90] deg (deviation = 0 means the
+               axis lies flat in the xy-plane, 90 means it points straight
+               along Z), computed from |dz| so it doesn't depend on which
+               model point was clicked first. theta_ref = 90 - deviation,
+               so it reduces to 90 (the old default) when the axis is
+               in-plane, and to 0 when the axis is along Z.
     phi_ref:   azimuth of the axis projected onto the xy-plane, in [0, 360).
+               Unlike the tilt, the azimuth genuinely has two equally valid
+               polarities for an undirected axis (phi_ref and phi_ref+180),
+               which the caller uses both of when filtering psi.
     """
     dx, dy, dz = axis
     r = np.linalg.norm(axis)
-    theta_ref = np.degrees(np.arccos(np.clip(dz / r, -1.0, 1.0)))
-    if theta_ref > 90:
-        theta_ref = 180 - theta_ref  # fold to the acute (0-90) representative
+    deviation_from_plane = np.degrees(np.arcsin(np.clip(abs(dz) / r, -1.0, 1.0)))
+    theta_ref = 90 - deviation_from_plane
     phi_ref = np.degrees(np.arctan2(dy, dx)) % 360
     return theta_ref, phi_ref
 
@@ -112,10 +118,10 @@ def main():
     if args.imod_model is not None:
         axis = get_axis_from_model(args.imod_model, args.object_id, args.contour_id)
         theta_ref, phi_ref = axis_to_reference_angles(axis)
-        # An axis is a line, not a directed vector: both (theta_ref, phi_ref)
-        # and its 180-degree-flipped counterpart (180-theta_ref, phi_ref+180)
-        # are equally valid orientations, so both are accepted below.
-        tilt_centers = sorted({theta_ref, 180 - theta_ref})
+        # Tilt (angle to the xy-plane) is single-valued for a line.
+        # Azimuth (psi) has two equally valid polarities for an undirected
+        # axis, so both phi_ref and phi_ref+180 are accepted below.
+        tilt_centers = [theta_ref]
         psi_centers = sorted({phi_ref % 360, (phi_ref + 180) % 360})
         logging.info(
             f"Derived reference angles from IMOD model '{args.imod_model}': "
