@@ -67,30 +67,26 @@ def get_axis_from_model(model_path: str, object_id: int = None, contour_id: int 
     return axis
 
 
-def axis_to_reference_angles(axis: np.ndarray) -> tuple[float, float]:
+def axis_to_cone_centers(axis: np.ndarray) -> list[tuple[float, float]]:
     """
-    Convert a 3D axis vector into the reference angles used to center the
-    tilt and psi filters, in degrees.
+    Convert a 3D axis vector into the (theta, phi) direction(s), in degrees,
+    that the pointing direction (Z1=phi, X=theta) of the angle list should be
+    restricted around to form a true cone around the axis.
 
-    theta_ref: reference colatitude for the tilt (X) filter. The angle an
-               (undirected) line makes with the xy-plane is a single,
-               well-defined value in [0, 90] deg (deviation = 0 means the
-               axis lies flat in the xy-plane, 90 means it points straight
-               along Z), computed from |dz| so it doesn't depend on which
-               model point was clicked first. theta_ref = 90 - deviation,
-               so it reduces to 90 (the old default) when the axis is
-               in-plane, and to 0 when the axis is along Z.
-    phi_ref:   azimuth of the axis projected onto the xy-plane, in [0, 360).
-               Unlike the tilt, the azimuth genuinely has two equally valid
-               polarities for an undirected axis (phi_ref and phi_ref+180),
-               which the caller uses both of when filtering psi.
+    The pointing direction of a candidate orientation is a point on the unit
+    sphere given by (theta, phi) -- exactly like the healpix grid used to
+    build angle_list. A cone around a *directed* vector v is just the set of
+    points within some angular radius of v's own (theta, phi). Since an IMOD
+    axis is a line (no arrowhead), both v and -v are equally valid, so two
+    cone centers are returned: v's direction and its antipode (-v).
     """
     dx, dy, dz = axis
     r = np.linalg.norm(axis)
-    deviation_from_plane = np.degrees(np.arcsin(np.clip(abs(dz) / r, -1.0, 1.0)))
-    theta_ref = 90 - deviation_from_plane
-    phi_ref = np.degrees(np.arctan2(dy, dx)) % 360
-    return theta_ref, phi_ref
+    theta_v = np.degrees(np.arccos(np.clip(dz / r, -1.0, 1.0)))
+    phi_v = np.degrees(np.arctan2(dy, dx)) % 360
+    center = (theta_v, phi_v)
+    antipode = (180 - theta_v, (phi_v + 180) % 360)
+    return [center, antipode]
 
 
 def circular_diff_deg(a: float, b: float) -> float:
@@ -99,12 +95,20 @@ def circular_diff_deg(a: float, b: float) -> float:
     return min(d, 360 - d)
 
 
+def angular_distance_deg(theta1: float, phi1: float, theta2: float, phi2: float) -> float:
+    """Great-circle angular distance (in degrees) between two (theta, phi) directions (in degrees)."""
+    t1, t2 = np.radians(theta1), np.radians(theta2)
+    dphi = np.radians(phi1 - phi2)
+    cos_d = np.cos(t1) * np.cos(t2) + np.sin(t1) * np.sin(t2) * np.cos(dphi)
+    return np.degrees(np.arccos(np.clip(cos_d, -1.0, 1.0)))
+
+
 def main():
     parser = argparse.ArgumentParser(description="Generate a list of ZXZ Euler angles with optional tilt and psi filtering.")
     parser.add_argument("--a", type=float, required=True, help="Angular increment in degrees.")
     parser.add_argument("--tilt_limit", type=float, default=None, help="Limit X (theta) to a band of this half-width around the reference tilt (in degrees).")
     parser.add_argument("--psi_limit", type=float, default=None, help="Limit Z2 (psi) to a band of this half-width around the reference psi (in degrees).")
-    parser.add_argument("--imod_model", type=str, default=None, help="Path to a 2-point IMOD model file (.mod) defining a filament axis. If given, the tilt reference becomes the axis's deviation from the xy-plane and the psi reference becomes the axis's azimuth (both used symmetrically, since the axis has no polarity). If omitted, the script behaves as before (tilt centered at 90 deg / in-plane, psi centered at 0/180 deg).")
+    parser.add_argument("--imod_model", type=str, default=None, help="Path to a 2-point IMOD model file (.mod) defining a filament axis. If given, --tilt_limit becomes the half-angle of a double cone (pointing direction within tilt_limit degrees of the axis or its 180-degree flip) instead of a band around the xy-plane. If omitted, the script behaves as before (tilt centered at 90 deg / in-plane).")
     parser.add_argument("--object_id", type=int, default=None, help="Restrict the IMOD model to this object_id, if the model contains more than one object/contour.")
     parser.add_argument("--contour_id", type=int, default=None, help="Restrict the IMOD model to this contour_id, if the model contains more than one object/contour.")
     parser.add_argument("--o", type=str, required=True, help="Output filename.")
@@ -114,29 +118,43 @@ def main():
 
     angle_list = angle_to_angle_list(args.a)
 
-    # Determine the reference centers for the tilt (theta) and psi filters.
-    if args.imod_model is not None:
-        axis = get_axis_from_model(args.imod_model, args.object_id, args.contour_id)
-        theta_ref, phi_ref = axis_to_reference_angles(axis)
-        # Tilt (angle to the xy-plane) is single-valued for a line.
-        # Azimuth (psi) has two equally valid polarities for an undirected
-        # axis, so both phi_ref and phi_ref+180 are accepted below.
-        tilt_centers = [theta_ref]
-        psi_centers = sorted({phi_ref % 360, (phi_ref + 180) % 360})
-        logging.info(
-            f"Derived reference angles from IMOD model '{args.imod_model}': "
-            f"tilt (theta) centers = {tilt_centers} deg, psi centers = {psi_centers} deg"
-        )
-    else:
-        tilt_centers = [90.0]
-        psi_centers = [0.0, 180.0]
+    # Psi (Z2, the "twist"/roll about the pointing direction) keeps its
+    # original meaning regardless of --imod_model: it's measured relative to
+    # the local meridian (the great circle through the pole at that point),
+    # so a fixed 0/180 reference is valid everywhere on the sphere. This is
+    # unrelated to *where* the pointing direction is, which is what the axis
+    # controls below.
+    psi_centers = [0.0, 180.0]
 
-    # Tilt filter (X)
-    if args.tilt_limit is not None:
-        angle_list = [
-            a for a in angle_list
-            if min(abs(np.degrees(a[1]) - c) for c in tilt_centers) <= args.tilt_limit
-        ]
+    if args.imod_model is not None:
+        # With a known axis, the pointing direction (Z1=phi, X=theta) itself
+        # should be restricted to a true cone around the axis -- i.e. within
+        # tilt_limit degrees (great-circle distance) of the axis direction,
+        # not just a band on theta with phi left free. Since the axis is a
+        # line (no arrowhead), both the axis and its 180-degree flip define
+        # equally valid cone centers (a "double cone").
+        axis = get_axis_from_model(args.imod_model, args.object_id, args.contour_id)
+        cone_centers = axis_to_cone_centers(axis)
+        logging.info(
+            f"Derived cone centers from IMOD model '{args.imod_model}' "
+            f"(theta, phi) in deg: {cone_centers}"
+        )
+
+        if args.tilt_limit is not None:
+            angle_list = [
+                a for a in angle_list
+                if min(
+                    angular_distance_deg(np.degrees(a[1]), np.degrees(a[0]), c[0], c[1])
+                    for c in cone_centers
+                ) <= args.tilt_limit
+            ]
+    else:
+        # Original behavior: theta (X) restricted to a band around the
+        # xy-plane (90 deg), phi (Z1) left completely free.
+        if args.tilt_limit is not None:
+            lower = np.deg2rad(90 - args.tilt_limit)
+            upper = np.deg2rad(90 + args.tilt_limit)
+            angle_list = [a for a in angle_list if lower <= a[1] <= upper]
 
     # Psi filter (Z2), circular distance handles wraparound at 0/360 automatically
     if args.psi_limit is not None:
