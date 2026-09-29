@@ -19,6 +19,7 @@ output="tomostar"
 #Variables to edit
 tilt_exposure=4
 min_intensity=0.0
+dont_invert=false
 
 # Run WarpTools ts_import with specified settings
 WarpTools ts_import \
@@ -26,6 +27,7 @@ WarpTools ts_import \
   --frameseries "$frameseries" \
   --tilt_exposure "$tilt_exposure" \
   --min_intensity "$min_intensity" \
-  --output "$output"
+  --output "$output" \
+  $( [ "$dont_invert" = true ] && echo "--dont_invert" )
 
 
