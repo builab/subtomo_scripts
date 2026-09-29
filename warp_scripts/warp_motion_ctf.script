@@ -23,6 +23,8 @@ m_grid="1x1x10" # 10 is the number of subframes
 c_grid="2x2x1"
 c_range_max=7 # This only change when high res
 c_defocus_max=8
+c_voltage=300
+c_cs=2.7
 out_average_halves=true # Set to true if you want to include --out_average_halves for denoising
 
 # Empty quote "" for all, 1-2 movie only  like "frames/ARMC9_00591_-9.0.tif frames/ARMC9_00592_-12.0.tif" or a text file list
@@ -36,6 +38,8 @@ WarpTools fs_motion_and_ctf \
   --c_grid "$c_grid" \
   --c_range_max "$c_range_max" \
   --c_defocus_max "$c_defocus_max" \
+  --c_voltage "$c_voltage" \
+  --c_cs "$c_cs" \
   --c_use_sum \
   --out_averages \
   $( [ "$out_average_halves" = true ] && echo "--out_average_halves" ) \
