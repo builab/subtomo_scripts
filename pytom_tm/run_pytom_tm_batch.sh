@@ -2,6 +2,7 @@
 # Script to run pytom_tm for every file in the RECON_DIR with a specific pattern
 # Design specific for Warp
 # Huy Bui, McGill, 2025
+# Updated 09/2026
 
 # === CONFIGURABLE VARIABLES ===
 TEMPLATE="templates/doublet_template_8nm_14.00Apx.mrc"
@@ -27,16 +28,15 @@ for MRC_FILE in "$RECON_DIR"/*_*_*Apx.mrc; do
     BASENAME=$(basename "$MRC_FILE")
 
     # Match pattern: prefix_NUM_PIXELSIZEMAG
-    if [[ "$BASENAME" =~ ^([A-Za-z0-9]+)_([0-9]+)_([0-9]+\.[0-9]+)Apx\.mrc$ ]]; then
+    if [[ "$BASENAME" =~ ^([A-Za-z0-9_]+)_([0-9]+\.[0-9]+)Apx\.mrc$ ]]; then
         PREFIX="${BASH_REMATCH[1]}"
-        ID="${BASH_REMATCH[2]}"
-        PIXELSIZE="${BASH_REMATCH[3]}"
+        PIXELSIZE="${BASH_REMATCH[2]}"
 
         # Related input files
-        TLT_FILE="$XML_DIR/${PREFIX}_${ID}.tlt"
-        DEFOCUS_FILE="$XML_DIR/${PREFIX}_${ID}_defocus.txt"
-        DOSE_FILE="$XML_DIR/${PREFIX}_${ID}_dose.txt"
-        LOG_FILE="$RESULTS_DIR/${PREFIX}_${ID}.log"
+        TLT_FILE="$XML_DIR/${PREFIX}.tlt"
+        DEFOCUS_FILE="$XML_DIR/${PREFIX}_defocus.txt"
+        DOSE_FILE="$XML_DIR/${PREFIX}_dose.txt"
+        LOG_FILE="$RESULTS_DIR/${PREFIX}.log"
 
         # Validate required metadata files
         if [[ ! -f "$TLT_FILE" || ! -f "$DEFOCUS_FILE" || ! -f "$DOSE_FILE" ]]; then

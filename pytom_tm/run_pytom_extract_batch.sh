@@ -2,6 +2,7 @@
 # Script to run pytom_tm extract for every file in the RESULTS_DIR with a specific pattern
 # Generic version for any Warp output naming
 # Huy Bui, McGill, 2025
+# Update 09/2026
 
 # === CONFIGURABLE VARIABLES ===
 RESULTS_DIR="results"
@@ -13,12 +14,11 @@ JSON_PATTERN="*_job.json"
 for JSON_FILE in "$RESULTS_DIR"/$JSON_PATTERN; do
     BASENAME=$(basename "$JSON_FILE")
 
-    if [[ "$BASENAME" =~ ^([A-Za-z0-9]+)_([0-9]+)_([0-9]+\.[0-9]+)Apx_job\.json$ ]]; then
+    if [[ "$BASENAME" =~ ^([A-Za-z0-9_]+)_([0-9]+\.[0-9]+)Apx_job\.json$ ]]; then
         PREFIX="${BASH_REMATCH[1]}"
-        ID="${BASH_REMATCH[2]}"
-        PIXEL="${BASH_REMATCH[3]}"
+        PIXEL="${BASH_REMATCH[2]}"
         
-        LOG_FILE="$RESULTS_DIR/${PREFIX}_${ID}_extract.log"
+        LOG_FILE="$RESULTS_DIR/${PREFIX}_extract.log"
         echo "$(date +"%H:%M:%S")"
         echo "▶️  Running candidate extraction for: $BASENAME"
         echo "Log: $LOG_FILE"
