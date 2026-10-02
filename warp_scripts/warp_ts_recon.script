@@ -21,7 +21,7 @@ export WARP_FORCE_MRC_FLOAT32=1
 settings="warp_tiltseries.settings"
 
 # Variables to edit
-angpix=8.48 # Reconstruction pixel size
+angpix=14.00 # Reconstruction pixel size
 dont_invert=true # Set to true to NOT invert contrast
 
 # Empty quote "" for all, 1 tomogram only  like "tomostar/SPEF1MT2_018.tomostar"
@@ -31,5 +31,5 @@ input_data=""
 WarpTools ts_reconstruct \
   --settings "$settings" \
   --angpix "$angpix" \
-  $( [ "$dont_invert" = True ] && echo "--dont_invert " ) \
+  $( [ "$dont_invert" = true ] && echo "--dont_invert " ) \
   $( [ -n "$input_data" ] && echo "--input_data $input_data" )
