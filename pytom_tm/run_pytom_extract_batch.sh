@@ -1,4 +1,15 @@
 #!/bin/bash
+#SBATCH --ntasks=1 
+#SBATCH --partition=ampere
+#SBATCH --error=pytom_extract.err
+#SBATCH --output=pytom_extract.out
+#SBATCH --job-name=pytom_extract
+#SBATCH --mem-per-cpu=18GB
+#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=1
+#SBATCH --nodes=1
+#SBATCH --time=1-00:00:00
+
 # Script to run pytom_tm extract for every file in the RESULTS_DIR with a specific pattern
 # Generic version for any Warp output naming
 # Huy Bui, McGill, 2025

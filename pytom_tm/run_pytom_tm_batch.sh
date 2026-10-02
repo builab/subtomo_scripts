@@ -1,4 +1,15 @@
 #!/bin/bash
+#SBATCH --ntasks=1 
+#SBATCH --partition=ampere
+#SBATCH --error=pytom_tm.err
+#SBATCH --output=pytom_tm.out
+#SBATCH --job-name=pytom_tm
+#SBATCH --mem-per-cpu=18GB
+#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=1
+#SBATCH --nodes=1
+#SBATCH --time=2-00:00:00
+
 # Script to run pytom_tm for every file in the RECON_DIR with a specific pattern
 # Design specific for Warp
 # Huy Bui, McGill, 2025
