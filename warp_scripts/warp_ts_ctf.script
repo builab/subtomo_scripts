@@ -19,6 +19,7 @@ settings="warp_tiltseries.settings"
 # Variables to edit, range_high=7, defocus_max=8 for normal tomo
 range_high=7
 defocus_max=8
+voltage=300
 
 # Empty quote "" for all, 1 tomogram only  like "tomostar/SPEF1MT2_018.tomostar"
 input_data=""
@@ -28,6 +29,7 @@ WarpTools ts_ctf \
 --settings "$settings" \
 --range_high "$range_high" \
 --defocus_max "$defocus_max" \
+--voltage "$voltage" \ 
   $( [ -n "$input_data" ] && echo "--input_data $input_data" )
 
 
