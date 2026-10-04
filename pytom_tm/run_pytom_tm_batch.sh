@@ -6,7 +6,7 @@
 #SBATCH --job-name=pytom_tm
 #SBATCH --mem-per-cpu=18GB
 #SBATCH --gres=gpu:1
-#SBATCH --cpus-per-task=1
+#SBATCH --cpus-per-task=4
 #SBATCH --nodes=1
 #SBATCH --time=2-00:00:00
 
