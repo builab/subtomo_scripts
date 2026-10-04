@@ -23,7 +23,7 @@ XML_DIR="xml"
 RESULTS_DIR="results"
 ANGLE_LIST="angle_list_filament4.txt"
 LOW_PASS=40
-GPU_ID=0
+GPU_ID=(0 1)
 VOLUME_SPLIT="2 2 1"
 AMP_CONTRAST=0.07
 SPHERICAL_ABERRATION=2.7
@@ -70,13 +70,13 @@ for MRC_FILE in "$RECON_DIR"/*_*_*Apx.mrc; do
             --spherical "$SPHERICAL_ABERRATION" \
             --voltage "$VOLTAGE" \
             --tomogram-ctf-model phase-flip \
-            -g "$GPU_ID" \
             --volume-split $VOLUME_SPLIT \
             --random-phase-correction \
             --dose-accumulation "$DOSE_FILE" \
             --angular-search "$ANGLE_LIST" \
             --per-tilt-weighting \
             --z-axis-rotational-symmetry "${Z_AXIS_ROTATIONAL_SYMMETRY}" \
+            -g "${GPU_ID[@]}" \
             &> "$LOG_FILE"
 
         echo "✅ Done: $BASENAME"
