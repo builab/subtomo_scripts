@@ -26,7 +26,7 @@ Inputs for one movie:
 |---|---|---|
 | Atlas image | `atlasgrid4_bin4_montage.mrc` | Stitched atlas montage, any binning |
 | Atlas mdoc | `atlasgrid4.mrc.mdoc` | The montage mdoc from SerialEM |
-| Square map image | `MMM_bin4_view8.mrc` | **One** stitched montage section (one square), any binning |
+| Square map image | `MMM_bin1_view8.mrc` | **One** stitched montage section (one square), any binning |
 | Square map mdoc | `MMM.mrc.mdoc` | The full MMM mdoc. It can hold many squares; the script uses only yours. |
 | Tilt series | `T_222_ts_002_bin3.mrc` | Binned stack, any order (see note below) |
 | Tilt series mdoc | `T_222_ts_002.mrc.mdoc` | Gives the tilt angle of each image |
@@ -39,6 +39,11 @@ blendmont -imin atlasgrid4.mrc -plin atlasgrid4.pl -imout atlasgrid4_bin4_montag
 
 extractpieces -mdoc MMM.mrc -output MMM.pl
 blendmont -imin MMM.mrc -plin MMM.pl -imout MMM_bin1_montage.mrc -rootname MMM_bin1 -sloppy -shift -bin 1
+```
+> **Extract a single view from montage.** Using newstack.
+
+```bash
+newstack -input MMM_bin1_montage.mrc -output MMM_bin1_view8.mrc -secs 8
 ```
 
 > **Tilt stack order.** SerialEM writes the mdoc in acquisition order (0°, +3°, −3°, …), but processed stacks are usually sorted by angle (−60° → +60°). The script compares the brightness of each image with the mdoc. If the stack is sorted and the mdoc isn't, it switches to angle order on its own and says so in the log. An mdoc sorted to match the stack is still the cleanest option.
