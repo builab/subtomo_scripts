@@ -26,10 +26,20 @@ Inputs for one movie:
 |---|---|---|
 | Atlas image | `atlasgrid4_bin4_montage.mrc` | Stitched atlas montage, any binning |
 | Atlas mdoc | `atlasgrid4.mrc.mdoc` | The montage mdoc from SerialEM |
-| Square map image | `MMM4_bin4_view8.mrc` | **One** stitched montage section (one square), any binning |
-| Square map mdoc | `MMM4.mrc.mdoc` | The full MMM mdoc. It can hold many squares; the script uses only yours. |
+| Square map image | `MMM_bin4_view8.mrc` | **One** stitched montage section (one square), any binning |
+| Square map mdoc | `MMM.mrc.mdoc` | The full MMM mdoc. It can hold many squares; the script uses only yours. |
 | Tilt series | `T_222_ts_002_bin3.mrc` | Binned stack, any order (see note below) |
 | Tilt series mdoc | `T_222_ts_002.mrc.mdoc` | Gives the tilt angle of each image |
+
+> **Stiched atlas montage & square map.** Using extractpieces and blendmont from IMOD.
+
+```bash
+extractpieces -mdoc atlasgrid4.mrc -output atlasgrid4.pl
+blendmont -imin atlasgrid4.mrc -plin atlasgrid4.pl -imout atlasgrid4_bin4_montage.mrc -rootname atlasgrid4_bin4 -sloppy -shift -bin 4
+
+extractpieces -mdoc MMM.mrc -output MMM.pl
+blendmont -imin MMM.mrc -plin MMM.pl -imout MMM_bin1_montage.mrc -rootname MMM_bin1 -sloppy -shift -bin 1
+```
 
 > **Tilt stack order.** SerialEM writes the mdoc in acquisition order (0°, +3°, −3°, …), but processed stacks are usually sorted by angle (−60° → +60°). The script compares the brightness of each image with the mdoc. If the stack is sorted and the mdoc isn't, it switches to angle order on its own and says so in the log. An mdoc sorted to match the stack is still the cleanest option.
 
@@ -59,7 +69,7 @@ ffmpeg -hide_banner -encoders | grep -E "libx264|h264_videotoolbox"
 ## 3. (Optional) Locate the tilt series on the maps from the mdocs
 
 ```bash
-python locate_tilt_in_montage.py MMM4.mrc.mdoc T_222_ts_002.mrc.mdoc --atlas-mdoc atlasgrid4.mrc.mdoc
+python locate_tilt_in_montage.py MMM.mrc.mdoc T_222_ts_002.mrc.mdoc --atlas-mdoc atlasgrid4.mrc.mdoc
 ```
 
 From stage positions alone, this reports:
@@ -76,7 +86,7 @@ Useful options:
 | `--atlas-bin 4` | Binning of your atlas image (default 4) |
 | `--atlas-ref MMM1.mrc.mdoc 17 1521 3205` | Correct the atlas offset using one square whose position you know. It prints a correction you can reuse with `--atlas-shift DX DY`. |
 | `--is-sign -1` | Reverse the sign of the image shift (`SpecimenShift`) |
-| `--mrc MMM4.mrc --png piece.png` | Save the nearest piece with the target marked |
+| `--mrc MMM.mrc --png piece.png` | Save the nearest piece with the target marked |
 | `--json positions.json` | Save every position and transform |
 
 > Treat these as **starting points**. Positions from stage coordinates alone can be off by several µm:
@@ -108,7 +118,7 @@ Run with `--qc-only`. It aligns everything and writes the check images without r
 ```bash
 python cryoet_movie.py \
   --atlas atlasgrid4_bin1_montage.mrc  --atlas-mdoc atlasgrid4.mrc.mdoc \
-  --square MMM4_bin1_view8.mrc         --square-mdoc MMM4.mrc.mdoc \
+  --square MMM_bin1_view8.mrc         --square-mdoc MMM.mrc.mdoc \
   --tilt T_222_ts_002_bin3.mrc         --tilt-mdoc T_222_ts_002.mrc.mdoc \
   --square-in-atlas 2948 8812 \
   --target-in-square 4122 2916 \
@@ -151,7 +161,7 @@ Use the same command without `--qc-only`:
 ```bash
 python cryoet_movie.py \
   --atlas atlasgrid4_bin1_montage.mrc  --atlas-mdoc atlasgrid4.mrc.mdoc \
-  --square MMM4_bin1_view8.mrc         --square-mdoc MMM4.mrc.mdoc \
+  --square MMM_bin1_view8.mrc         --square-mdoc MMM.mrc.mdoc \
   --tilt T_222_ts_002_bin3.mrc         --tilt-mdoc T_222_ts_002.mrc.mdoc \
   --square-in-atlas 2948 8812 \
   --target-in-square 4122 2916 \
@@ -166,7 +176,7 @@ The bin-4 version (smaller files, quicker; alignment still accurate, but the dee
 ```bash
 python cryoet_movie.py \
   --atlas atlasgrid4_bin4_montage.mrc  --atlas-mdoc atlasgrid4.mrc.mdoc \
-  --square MMM4_bin4_view8.mrc         --square-mdoc MMM4.mrc.mdoc \
+  --square MMM_bin4_view8.mrc         --square-mdoc MMM.mrc.mdoc \
   --tilt T_222_ts_002_bin3.mrc         --tilt-mdoc T_222_ts_002.mrc.mdoc \
   --square-in-atlas 737 2203 \
   --target-in-square 1027 732 \
