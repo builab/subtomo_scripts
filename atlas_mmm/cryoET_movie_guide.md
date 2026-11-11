@@ -28,8 +28,8 @@ Inputs for one movie:
 | Atlas mdoc | `atlasgrid4.mrc.mdoc` | The montage mdoc from SerialEM |
 | Square map image | `MMM_bin1_view8.mrc` | **One** stitched montage section (one square), any binning |
 | Square map mdoc | `MMM.mrc.mdoc` | The full MMM mdoc. It can hold many squares; the script uses only yours. |
-| Tilt series | `T_222_ts_002_bin3.mrc` | Binned stack, any order (see note below) |
-| Tilt series mdoc | `T_222_ts_002.mrc.mdoc` | Gives the tilt angle of each image |
+| Tilt series | `TS_001_bin8.mrc` | Binned stack, any order (see note below) |
+| Tilt series mdoc | `TS_001.mrc.mdoc` | Gives the tilt angle of each image |
 
 > **Stiched atlas montage & square map.** Using extractpieces and blendmont from IMOD.
 
@@ -74,7 +74,7 @@ ffmpeg -hide_banner -encoders | grep -E "libx264|h264_videotoolbox"
 ## 3. (Optional) Locate the tilt series on the maps from the mdocs
 
 ```bash
-python locate_tilt_in_montage.py MMM.mrc.mdoc T_222_ts_002.mrc.mdoc --atlas-mdoc atlasgrid4.mrc.mdoc
+python locate_tilt_in_montage.py MMM.mrc.mdoc TS_001.mrc --atlas-mdoc atlasgrid4.mrc.mdoc
 ```
 
 From stage positions alone, this reports:
@@ -89,7 +89,7 @@ Useful options:
 |---|---|
 | `--section N` | Force a montage section |
 | `--atlas-bin 4` | Binning of your atlas image (default 4) |
-| `--atlas-ref MMM1.mrc.mdoc 17 1521 3205` | Correct the atlas offset using one square whose position you know. It prints a correction you can reuse with `--atlas-shift DX DY`. |
+| `--atlas-ref MMM.mrc.mdoc 17 1521 3205` | Correct the atlas offset using one square whose position you know. It prints a correction you can reuse with `--atlas-shift DX DY`. |
 | `--is-sign -1` | Reverse the sign of the image shift (`SpecimenShift`) |
 | `--mrc MMM.mrc --png piece.png` | Save the nearest piece with the target marked |
 | `--json positions.json` | Save every position and transform |
@@ -118,15 +118,16 @@ To convert between binnings, multiply by the binning ratio. The script works out
 
 ## 5. QC first (always)
 
+**All files available to download as example.**
 Run with `--qc-only`. It aligns everything and writes the check images without rendering the movie:
 
 ```bash
 python cryoet_movie.py \
-  --atlas atlasgrid4_bin1_montage.mrc  --atlas-mdoc atlasgrid4.mrc.mdoc \
-  --square MMM_bin1_view8.mrc         --square-mdoc MMM.mrc.mdoc \
-  --tilt T_222_ts_002_bin3.mrc         --tilt-mdoc T_222_ts_002.mrc.mdoc \
-  --square-in-atlas 2948 8812 \
-  --target-in-square 4122 2916 \
+  --atlas atlasgrid4_bin4_montage.mrc  --atlas-mdoc atlasgrid4.mrc.mdoc \
+  --square MMM_bin4_view8.mrc         --square-mdoc MMM.mrc.mdoc \
+  --tilt TS_001_bin8.mrc         --tilt-mdoc TS_001.mrc.mdoc \
+  --square-in-atlas 737 2203 \
+  --target-in-square 1027 732 \
   --search-um 0.3 \
   --tilt-flip180 \
   --zoom 12 --hold 3 \
@@ -165,26 +166,26 @@ Use the same command without `--qc-only`:
 
 ```bash
 python cryoet_movie.py \
-  --atlas atlasgrid4_bin1_montage.mrc  --atlas-mdoc atlasgrid4.mrc.mdoc \
-  --square MMM_bin1_view8.mrc         --square-mdoc MMM.mrc.mdoc \
-  --tilt T_222_ts_002_bin3.mrc         --tilt-mdoc T_222_ts_002.mrc.mdoc \
-  --square-in-atlas 2948 8812 \
-  --target-in-square 4122 2916 \
+  --atlas atlasgrid4_bin4_montage.mrc  --atlas-mdoc atlasgrid4.mrc.mdoc \
+  --square MMM_bin4_view8.mrc         --square-mdoc MMM.mrc.mdoc \
+  --tilt TS_001_bin8.mrc         --tilt-mdoc TS_001.mrc.mdoc \
+  --square-in-atlas 737 2203 \
+  --target-in-square 1027 732 \
   --search-um 0.3 \
   --tilt-flip180 \
   --zoom 12 --hold 3 \
-  --out cryoET_movie_zoom12.mp4
+  --out cryoET_movie_zoom12.mp4 \
 ```
 
-The bin-4 version (smaller files, quicker; alignment still accurate, but the deep zoom looks softer):
+The bin-1 version (better files, the deep zoom looks sharper):
 
 ```bash
 python cryoet_movie.py \
   --atlas atlasgrid4_bin4_montage.mrc  --atlas-mdoc atlasgrid4.mrc.mdoc \
-  --square MMM_bin4_view8.mrc         --square-mdoc MMM.mrc.mdoc \
-  --tilt T_222_ts_002_bin3.mrc         --tilt-mdoc T_222_ts_002.mrc.mdoc \
-  --square-in-atlas 737 2203 \
-  --target-in-square 1027 732 \
+  --square MMM_bin1_view8.mrc         --square-mdoc MMM.mrc.mdoc \
+  --tilt TS_001_bin3.mrc         --tilt-mdoc TS_001_bin3.mrc.mdoc \
+  --square-in-atlas  2948 8812 \
+  --target-in-square 4122 2916 \
   --search-um 0.3 \
   --tilt-flip180 \
   --zoom 12 --hold 3 \
@@ -256,6 +257,7 @@ To look at a few frames before rendering everything, add `--preview`. It saves k
 ## 9. Notes and good practice
 
 - **Use bin 1 for the square map when you can.** The tilt image then covers about 160 × 110 map pixels instead of about 40 × 28, so the match is much more reliable and the 12× zoom stays sharp. The atlas never needs bin 1.
+- **Use bin 4 for the tilt series.** The tilt image then covers about 1000 × 1000 map pixels, which is good for a 2K movie.
 - **Always run `--qc-only` first.** Alignment takes seconds; rendering takes about a minute.
 - **Square maps taken in View mode with a large defocus offset are slightly rotated and magnified relative to nominal.** The script applies `AdjustedPixelSpacing` from the mdoc for the tilt footprint and searches the rotation, so you don't need to correct for this yourself.
 - **Every refined position is saved in `*_alignment.json`.** Reuse those values as manual coordinates with `--no-refine` to make the movie exactly reproducible.
